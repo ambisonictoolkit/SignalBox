@@ -43,6 +43,14 @@
 		^this.as(Array).wrapExtend(size).as(Signal)
 	}
 
+	/* rotation */
+	// NOTE: will probably want to match Hilbert phase rotation
+	//       also, need to be clear as to meaning of +/- rotation.
+	//       Value is as reported by goertzel
+	rotateWave { arg phase;
+		^this.deepCopy.rotate(phase / 2pi.neg * this.size )
+	}
+
 	/* real even and odd */
 	even {
 		^(0.5 * (this + this.flip))
