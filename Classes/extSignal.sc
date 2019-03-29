@@ -38,6 +38,11 @@
 		^Signal.newClear(size)
 	}
 
+	/* wrapping */
+	wrapExtend { arg size;
+		^this.as(Array).wrapExtend(size).as(Signal)
+	}
+
 	/* real even and odd */
 	even {
 		^(0.5 * (this + this.flip))
