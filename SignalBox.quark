@@ -1,0 +1,14 @@
+(
+          \name: "SignalBox",
+       \summary: "A set of tools for working analysis and design in the Time and Frequency domain.",
+        \author: "Joseph Anderson",
+     \copyright: "Joseph Anderson 2019",
+       \license: "GPL",
+       \version: "0.0.0",
+        \schelp: "The SignalBox Toolset",
+           \url: "https://github.com/ambisonictoolkit/SignalBox",
+  \dependencies: [
+  
+                ],
+         \since: "2019",
+)
