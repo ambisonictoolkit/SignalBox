@@ -647,4 +647,21 @@
 		})
 	}
 
+	/* Hilbert & Analytic */
+
+	// https://www.mathworks.com/help/signal/ref/hilbert.html
+	// Marple, S. L. “Computing the Discrete-Time Analytic Signal via FFT.” IEEE® Transactions on Signal Processing. Vol. 47, 1999, pp. 2600–2603.
+
+	// NOTE: throw a warning for non power of two?
+	//       or implement via DFT, too?
+	analytic {
+		var rfft, real, imag;
+
+		rfft = this.rfft(Signal.rfftCosTable(this.size/2 + 1));
+		real = (rfft.real * ([1] ++ Array.fill(rfft.real.size - 2, { 2 }) ++ [1]).as(Signal)).zeroPad(this.size);
+		imag = rfft.imag.zeroPad(this.size);
+
+		^real.ifft(imag, Signal.fftCosTable(this.size))
+	}
+
 }
