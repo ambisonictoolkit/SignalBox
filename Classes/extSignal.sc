@@ -85,6 +85,24 @@
 		})
 	}
 
+	rotatePhase { arg phase;
+		var complex;
+
+		^(this.size.isPowerOfTwo).if({  // rfft
+			var cosTable = Signal.rfftCosTable(this.size/2 + 1);
+
+			complex = this.rfft(cosTable);  // real fft
+			complex = Complex.new(phase.cos, phase.sin) * complex;  // rotate
+
+			complex.real.irfft(complex.imag, cosTable)  // irfft
+		}, {  // czt via analytic
+			complex = this.analytic;
+
+			// equivalent to: (Complex.new(phase.cos, phase.sin) * complex).real
+			(phase.cos * complex.real) + (phase.sin.neg * complex.imag)
+		})
+	}
+
 	/* real even and odd */
 	even {
 		^(0.5 * (this + this.flip))
@@ -684,7 +702,6 @@
 	// Marple, S. L. “Computing the Discrete-Time Analytic Signal via FFT.” IEEE® Transactions on Signal Processing. Vol. 47, 1999, pp. 2600–2603.
 
 	analytic {
-
 		^(this.size.isPowerOfTwo).if({  // fft
 			var rfft, h, real, imag;
 
