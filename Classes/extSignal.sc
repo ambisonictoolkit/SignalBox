@@ -344,14 +344,11 @@
 	// [1] Duhamel P., el al, "On Computing the Inverse DFT", IEEE Trans. on Acoustics, Speech, and Signal Processing, Vol. 36, No. 2, Feb. 1988.
 	// [2] https://www.dsprelated.com/showarticle/800.php
 	idft { arg imag, method = 'czt';
-		var complex;
-
-		// complex = imag.dft(this);
-		complex = imag.dft(this, method);
+		var complex = imag.dft(this, method) / this.size;
 
 		^Complex.new(
-			complex.imag / this.size,
-			complex.real / this.size
+			complex.imag,
+			complex.real
 		)
 	}
 
