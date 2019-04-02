@@ -700,25 +700,21 @@
 			var h, real, imag;
 			var complex;
 
+			step = (0.0.complex(-2pi/(this.size))).exp;  // step, same as dft
+
 			this.size.even.if({  // even
 				cztsize = (this.size/2).asInteger + 1;  // up to Nyquist
-				step = (0.0.complex(-2pi/(this.size))).exp;  // step, same as dft
-
-				czt = this.czt(Signal.newClear(this.size), cztsize, step);
 				h = ([1] ++ Array.fill(cztsize - 2, { 2 }) ++ [1]).as(Signal);  // norm for +freqs
-
 			}, {  // odd
 				cztsize = ((this.size + 1) /2).asInteger;  // up to highest +freq
-				step = (0.0.complex(-2pi/(this.size))).exp;  // step, same as dft
-
-				czt = this.czt(Signal.newClear(this.size), cztsize, step);
 				h = ([1] ++ Array.fill(cztsize - 1, { 2 })).as(Signal);  // norm for +freqs
 			});
+
+			czt = this.czt(Signal.newClear(this.size), cztsize, step);
 			real = (czt.real * h);
 			imag = (czt.imag * h);
 
 			complex = imag.czt(real, this.size, step) / this.size;  // inverse...
-
 			Complex.new(  // ... "real" czt
 				complex.imag,
 				complex.real
