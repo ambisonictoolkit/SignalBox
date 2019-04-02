@@ -44,11 +44,45 @@
 	}
 
 	/* rotation */
-	// NOTE: will probably want to match Hilbert phase rotation
-	//       also, need to be clear as to meaning of +/- rotation.
-	//       Value is as reported by goertzel
+
+	// NOTE: match Hilbert phase rotation
+	// -rotatePeriod ??
 	rotateWave { arg phase;
-		^this.deepCopy.rotate(phase / 2pi.neg * this.size )
+		var precision = 0.1;  // corresponds to integer
+		var n = phase / 2pi.neg * this.size;
+		var intN = n.asInteger;
+
+		^n.equalWithPrecision(intN, precision).if({  // direct
+			this.deepCopy.rotate(n)
+		}, {
+			(this.size.isPowerOfTwo).if({  // fft
+				var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
+				var complex = this.rfft(cosTable);
+				var rotatedComplex =  complex.magnitude.polarComplexSignal(
+					complex.phase + phase
+				);
+				rotatedComplex.real.irfft(rotatedComplex.imag, cosTable)
+			}, {  // dft
+				var complex = this.dft(Signal.newClear(this.size));
+				var rotatedComplex;
+				var halfsize = (this.size/2).floor;
+
+				rotatedComplex = this.size.even.if({
+					complex.magnitude.polarComplexSignal(
+						complex.phase + (
+							Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg })
+						)
+					)
+				}, {
+					complex.magnitude.polarComplexSignal(
+						complex.phase + (
+							Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg })
+						)
+					)
+				});
+				rotatedComplex.real.idft(rotatedComplex.imag).real
+			})
+		})
 	}
 
 	/* real even and odd */
