@@ -683,16 +683,47 @@
 	// https://www.mathworks.com/help/signal/ref/hilbert.html
 	// Marple, S. L. “Computing the Discrete-Time Analytic Signal via FFT.” IEEE® Transactions on Signal Processing. Vol. 47, 1999, pp. 2600–2603.
 
-	// NOTE: throw a warning for non power of two?
-	//       or implement via DFT, too?
 	analytic {
-		var rfft, real, imag;
 
-		rfft = this.rfft(Signal.rfftCosTable(this.size/2 + 1));
-		real = (rfft.real * ([1] ++ Array.fill(rfft.real.size - 2, { 2 }) ++ [1]).as(Signal)).zeroPad(this.size);
-		imag = rfft.imag.zeroPad(this.size);
+		^(this.size.isPowerOfTwo).if({  // fft
+			var rfft, h, real, imag;
 
-		^real.ifft(imag, Signal.fftCosTable(this.size))
+			rfft = this.rfft(Signal.rfftCosTable(this.size/2 + 1));  // real fft
+			h = ([1] ++ Array.fill(rfft.real.size - 2, { 2 }) ++ [1]).as(Signal);  // norm for +freqs
+
+			real = (rfft.real * h).zeroPad(this.size);
+			imag = (rfft.imag * h).zeroPad(this.size);
+
+			real.ifft(imag, Signal.fftCosTable(this.size))  // complex fft
+		}, {  // czt
+			var czt, cztsize, step;
+			var h, real, imag;
+			var complex;
+
+			this.size.even.if({  // even
+				cztsize = (this.size/2).asInteger + 1;  // up to Nyquist
+				step = (0.0.complex(-2pi/(this.size))).exp;  // step, same as dft
+
+				czt = this.czt(Signal.newClear(this.size), cztsize, step);
+				h = ([1] ++ Array.fill(cztsize - 2, { 2 }) ++ [1]).as(Signal);  // norm for +freqs
+
+			}, {  // odd
+				cztsize = ((this.size + 1) /2).asInteger;  // up to highest +freq
+				step = (0.0.complex(-2pi/(this.size))).exp;  // step, same as dft
+
+				czt = this.czt(Signal.newClear(this.size), cztsize, step);
+				h = ([1] ++ Array.fill(cztsize - 1, { 2 })).as(Signal);  // norm for +freqs
+			});
+			real = (czt.real * h);
+			imag = (czt.imag * h);
+
+			complex = imag.czt(real, this.size, step) / this.size;  // inverse...
+
+			Complex.new(  // ... "real" czt
+				complex.imag,
+				complex.real
+			)
+		})
 	}
 
 }
