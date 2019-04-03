@@ -707,12 +707,11 @@
 		{ (hbSize.odd && sym) || (hbSize.even && sym.not) } {  // integer
 			hbSize.odd.if({  // odd
 				rad = pi * Array.series(hbSize, ((hbSize - 1)/2).neg);
-				real = Signal.newClear(hbSize).put((hbSize - 1)/2, 1.0)
+				real = Signal.newClear(hbSize).put((hbSize - 1)/2, 1.0)  // sinc
 			}, {  // even
 				rad = pi * Array.series(hbSize, (hbSize/2).neg);
-				real = Signal.newClear(hbSize).put(hbSize/2, 1.0)
+				real = Signal.newClear(hbSize).put(hbSize/2, 1.0)  // sinc
 			});
-			imag = rad.collect({|i| (i == 0).if({ 0 }, { 1 - cos(i) / (i) }) }).as(Signal);
 		}
 		{ (hbSize.odd && sym.not) || (hbSize.even && sym) } {  // fractional
 			hbSize.odd.if({  // odd
@@ -721,8 +720,8 @@
 				rad = pi * Array.series(hbSize, ((hbSize - 1)/2).neg);
 			});
 			real = rad.sincPi.as(Signal);
-			imag = rad.collect({|i| (i == 0).if({ 0 }, { 1 - cos(i) / (i) }) }).as(Signal);
 		};
+		imag = rad.collect({|i| (i == 0).if({ 0 }, { 1 - cos(i) / (i) }) }).as(Signal);
 
 		^Complex.new(
 			real,
