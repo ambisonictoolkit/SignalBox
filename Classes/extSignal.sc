@@ -698,6 +698,38 @@
 
 	/* Hilbert & Analytic */
 
+	*hilbert { arg size, pad = 0, sym = false;
+		var hbSize = size - pad;
+		var rad;
+		var real, imag;
+
+		case
+		{ (hbSize.odd && sym) || (hbSize.even && sym.not) } {  // integer
+			hbSize.odd.if({  // odd
+				rad = pi * Array.series(hbSize, ((hbSize - 1)/2).neg);
+				real = Signal.newClear(hbSize).put((hbSize - 1)/2, 1.0)
+			}, {  // even
+				rad = pi * Array.series(hbSize, (hbSize/2).neg);
+				real = Signal.newClear(hbSize).put(hbSize/2, 1.0)
+			});
+			imag = rad.collect({|i| (i == 0).if({ 0 }, { 1 - cos(i) / (i) }) }).as(Signal);
+		}
+		{ (hbSize.odd && sym.not) || (hbSize.even && sym) } {  // fractional
+			hbSize.odd.if({  // odd
+				rad = pi * Array.series(hbSize, (hbSize/2).neg);
+			}, {  // even
+				rad = pi * Array.series(hbSize, ((hbSize - 1)/2).neg);
+			});
+			real = rad.sincPi.as(Signal);
+			imag = rad.collect({|i| (i == 0).if({ 0 }, { 1 - cos(i) / (i) }) }).as(Signal);
+		};
+
+		^Complex.new(
+			real,
+			imag
+		)
+	}
+
 	// https://www.mathworks.com/help/signal/ref/hilbert.html
 	// Marple, S. L. “Computing the Discrete-Time Analytic Signal via FFT.” IEEE® Transactions on Signal Processing. Vol. 47, 1999, pp. 2600–2603.
 
