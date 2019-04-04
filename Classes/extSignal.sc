@@ -465,6 +465,46 @@
 	// 	^Signal.newClear(size).sineFill2(sineFill2List).scale(size.reciprocal)
 	// }
 
+
+	// default - rdft
+	dftZoom { arg imag, zoomsize, k0, k1;
+		var kc0, kc1;
+		var cwtsize, step, start;
+
+		// assign algorithm vars
+		kc0 = (k0 != nil).if({
+			k0
+		}, {  // DC
+			0
+		});
+		kc1 = (k1 != nil).if({
+			k1
+		}, {
+			this.size.even.if({
+				this.size / 2  // Nyquist
+			}, {
+				(this.size - 1) / 2  // highest +freq
+			})
+		});
+
+		cwtsize = (zoomsize != nil).if({
+			zoomsize
+		}, {
+			(kc1 - kc0).asInteger + 1
+		});
+
+		start = (0.0.complex(2pi * kc0 / this.size)).exp;
+		step = (0.0.complex(-2pi * (kc1-kc0) / (this.size * (cwtsize-1)))).exp;
+
+		^this.czt(imag, cwtsize, step, start)
+	}
+
+	// just a convenience - could optimize with decimation for size.even
+	rdftZoom { arg zoomsize, k0, k1;
+		^this.dftZoom(Signal.newClear(this.size), zoomsize, k0, k1)
+	}
+
+
 	/* chirp z-transform */
 
 	/*
@@ -548,6 +588,7 @@
 		^xk
 	}
 
+	// just a convenience - could optimize with decimation for size.even
 	rczt { arg cwtsize, step, start;
 		^this.czt(Signal.newClear(this.size), cwtsize, step, start);
 	}
@@ -698,6 +739,10 @@
 
 	/* Hilbert & Analytic */
 
+	/*
+	Include -hilbertEnvelope, -hilbertPhase ?
+	*/
+
 	*hilbert { arg size, pad = 0, sym = false;
 		var hbSize = size - pad;
 		var rad;
@@ -754,7 +799,7 @@
 				cztsize = (this.size/2).asInteger + 1;  // up to Nyquist
 				h = ([1] ++ Array.fill(cztsize - 2, { 2 }) ++ [1]).as(Signal);  // norm for +freqs
 			}, {  // odd
-				cztsize = ((this.size + 1) /2).asInteger;  // up to highest +freq
+				cztsize = ((this.size + 1) / 2).asInteger;  // up to highest +freq
 				h = ([1] ++ Array.fill(cztsize - 1, { 2 })).as(Signal);  // norm for +freqs
 			});
 
