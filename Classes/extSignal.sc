@@ -539,7 +539,7 @@
 		xn = this.complex(imag);
 
 		n = this.size;
-		m = cwtsize.isNil.if({ n }, { cwtsize });
+		m = cwtsize.isNil.if({ n }, { cwtsize.asInteger });
 		l = (n + m - 1).nextPowerOfTwo;  // fftsize
 
 		w = step.isNil.if({ (0.0.complex(-2pi/m)).exp }, { step });  // matlab; Rabiner uses -2pi/n
@@ -736,6 +736,34 @@
 			)
 		})
 	}
+
+	/* cepstrum */
+
+	rceps {
+		^this.size.isPowerOfTwo.if({  // rfft
+			var rfftSize = (this.size/2+1).asInteger;
+			var cosTable = Signal.rfftCosTable(rfftSize);
+			var imag = Signal.newClear(rfftSize);
+			this.rfft(cosTable).magnitude.log.as(Signal).irfft(imag, cosTable)
+		}, {  // dft
+			var imag = Signal.newClear(this.size);
+			this.dft(imag).magnitude.log.as(Signal).idft(imag).real
+		})
+	}
+
+	irceps {
+		^this.size.isPowerOfTwo.if({  // rfft
+			var rfftSize = (this.size/2+1).asInteger;
+			var cosTable = Signal.rfftCosTable(rfftSize);
+			var complex = this.rfft(cosTable).exp;
+			complex.real.irfft(complex.imag, cosTable)
+		}, {  // dft
+			var imag = Signal.newClear(this.size);
+			var complex = this.dft(imag).exp;
+			complex.real.idft(complex.imag).real
+		})
+	}
+
 
 	/* Hilbert & Analytic */
 
