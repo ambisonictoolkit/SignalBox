@@ -24,6 +24,13 @@
 + Signal {
 
 	/* misc */
+
+	maxdb { arg aNumber; ^this.as(Array).maxdb(aNumber).as(Signal) }
+	mindb { arg aNumber; ^this.as(Array).mindb(aNumber).as(Signal) }
+	clipdb2 { arg aNumber; ^this.as(Array).clipdb2(aNumber).as(Signal) }
+	threshdb { arg aNumber; ^this.as(Array).threshdb(aNumber).as(Signal) }
+	clipdb { arg lo, hi; ^this.as(Array).clipdb(lo, hi).as(Signal) }
+
 	flip {
 		^this.deepCopy.reverse.rotate(1)
 	}
