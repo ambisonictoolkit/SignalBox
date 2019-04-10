@@ -65,9 +65,7 @@
 			(this.size.isPowerOfTwo).if({  // fft
 				var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
 				var complex = this.rfft(cosTable);
-				var rotatedComplex =  complex.magnitude.polarComplexSignal(
-					complex.phase + phase
-				);
+				var rotatedComplex = complex.rotate(phase);
 				rotatedComplex.real.irfft(rotatedComplex.imag, cosTable)
 			}, {  // dft
 				var complex = this.dft(Signal.newClear(this.size));
@@ -75,17 +73,9 @@
 				var halfsize = (this.size/2).floor;
 
 				rotatedComplex = this.size.even.if({
-					complex.magnitude.polarComplexSignal(
-						complex.phase + (
-							Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg })
-						)
-					)
+					complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))
 				}, {
-					complex.magnitude.polarComplexSignal(
-						complex.phase + (
-							Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg })
-						)
-					)
+					complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))
 				});
 				rotatedComplex.real.idft(rotatedComplex.imag).real
 			})

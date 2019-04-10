@@ -45,10 +45,30 @@
 		})
 	}
 
-	/* complex helper */
 
-	// return Complex from magnitude, phase - useful for fft
-	polarComplexSignal { arg phase;
-		^(this.as(Signal) * phase.cos.as(Signal).complex(phase.sin.as(Signal)))
+	/* phase helpers */
+
+	// input is magnitude of +/-frequencies
+	linearPhase { arg sym = false;
+		var start, step;
+		var phase;
+
+		sym.if({
+			step = pi.neg * (this.size-1) / this.size;
+		}, {
+			step = pi.neg;
+		});
+
+		this.size.even.if({
+			start = step.neg * this.size / 2;  // start with negative freqs
+			phase = Array.series(this.size, start, step);
+			phase = phase.rotate((this.size / 2).asInteger)  // rotate
+		}, {
+			start = step.neg * (this.size-1) / 2;  // start with negative freqs
+			phase = Array.series(this.size, start, step);
+			phase = phase.rotate(((this.size+1) / 2).asInteger)  // rotate
+		});
+		^phase
 	}
+
 }
