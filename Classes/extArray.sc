@@ -72,7 +72,7 @@
 	}
 
 	// input is magnitude of +/-frequencies
-	minimumPhase { var mindb = -120.0;
+	minimumPhase { arg mindb = -120.0;
 		var logMag = this.max(this.maxItem * mindb.dbamp).log;
 		^logMag.as(Signal).analytic.imag.neg.as(Array)  // -1 * Hilbert
 	}
