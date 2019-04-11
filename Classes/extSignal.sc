@@ -50,7 +50,7 @@
 		^this.as(Array).wrapExtend(size).as(Signal)
 	}
 
-	/* rotation */
+	/* rotation & phase */
 
 	// NOTE: match Hilbert phase rotation
 	// -rotatePeriod ??
@@ -97,6 +97,63 @@
 
 			// equivalent to: (Complex.new(phase.cos, phase.sin) * complex).real
 			(phase.cos * complex.real) + (phase.sin.neg * complex.imag)
+		})
+	}
+
+	linearPhase { arg sym = false;
+		var magnitude, phase, complex;
+
+		^(this.size.isPowerOfTwo).if({  // rfft
+			var cosTable = Signal.rfftCosTable(this.size/2 + 1);
+			var rcomplex, rcomplexMin;
+
+			rcomplex = this.rfft(cosTable);  // real fft
+			magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
+			phase = magnitude.linearPhase(sym);  // linear phase
+
+			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
+			rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
+
+			rcomplexMin.real.irfft(rcomplexMin.imag, cosTable)  // irfft
+		}, {  // czt via dft
+			magnitude = this.dft(Signal.newClear(this.size)).magnitude;  // magnitude
+			phase = magnitude.linearPhase(sym);  // linear phase
+			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
+
+			complex.real.idft(complex.imag).real  // idft
+		})
+	}
+
+	// Hilbert minimum phase
+	minimumPhase { arg mindb = -120.0, oversample = 1;
+		var magnitude, phase, complex;
+		var osSize, osThis;
+
+		osSize = (oversample.isInteger || this.size.isPowerOfTwo).if({
+			(oversample * this.size).nextPowerOfTwo
+		}, {
+			(oversample * this.size).floor
+		}).asInteger;
+		osThis = this ++ Signal.newClear(osSize - this.size);
+
+		^(osSize.isPowerOfTwo).if({  // rfft
+			var cosTable = Signal.rfftCosTable(osSize/2 + 1);
+			var rcomplex, rcomplexMin;
+
+			rcomplex = osThis.rfft(cosTable);  // real fft
+			magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
+			phase = magnitude.minimumPhase(mindb);  // minimum phase
+
+			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+			rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
+
+			rcomplexMin.real.irfft(rcomplexMin.imag, cosTable).keep(this.size)  // irfft
+		}, {  // czt via dft
+			magnitude = osThis.dft(Signal.newClear(osSize)).magnitude;  // magnitude
+			phase = magnitude.minimumPhase(mindb);  // minimum phase
+			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+
+			complex.real.idft(complex.imag).real.keep(this.size)  // idft
 		})
 	}
 
@@ -367,100 +424,10 @@
 		)
 	}
 
-
-	// /* real dft */
-	//
-	// rdft {
-	// 	var complex;
-	// 	var rdftSize;
-	//
-	// 	rdftSize = this.size.even.if({
-	// 		(this.size / 2).asInteger + 1
-	// 	}, {
-	// 		((this.size + 1)/ 2).asInteger
-	// 	});
-	//
-	// 	complex = rdftSize.collect({ arg i;
-	// 		[\real, \imag].collect({ arg msg;
-	// 			(
-	// 				Complex.new(
-	// 					Signal.newClear(this.size).addSine(i, 1.0, 0.5pi) * this,
-	// 					Signal.newClear(this.size).addSine(i, 1.0, pi) * this
-	// 				)
-	// 			).perform(msg).sum
-	// 		});
-	// 	}).flop;
-	//
-	// 	^Complex.new(complex.at(0).as(Signal), complex.at(1).as(Signal))
-	// }
-	//
-	//
-	// /*
-	// Revise to use design pattern(s) found in -idft & -rdft
-	// */
-	// // match irfft return
-	// // doesn't account for this.size == odd
-	// // irdft { arg imag;
-	// // 	var size;
-	// // 	var magnitudePhase;
-	// // 	var sineFill2List;
-	// //
-	// // 	size = 2 * (this.size - 1);
-	// //
-	// // 	magnitudePhase = [\magnitude, \phase].collect({ arg msg;
-	// // 		Complex.new(this, imag).perform(msg)
-	// // 	});
-	// //
-	// // 	sineFill2List = this.size.collect({ arg i;
-	// // 		[ i, magnitudePhase.at(0).at(i), 0.5pi + magnitudePhase.at(1).at(i) ]
-	// // 	});
-	// //
-	// // 	^Signal.newClear(size).sineFill2(sineFill2List).scale(2 * size.reciprocal)
-	// // }
-	// irdft { arg imag;
-	// 	var size;
-	// 	var magnitudePhase;
-	// 	var sineFill2List;
-	//
-	// 	size = this.size.even.if({
-	// 		(2 * this.size) - 1
-	// 	}, {
-	// 		2 * (this.size - 1)
-	// 	});
-	//
-	// 	magnitudePhase = [\magnitude, \phase].collect({ arg msg;
-	// 		Complex.new(this, imag).perform(msg)
-	// 	});
-	//
-	// 	/*
-	// 	Take account of scaling at DC and Nyquist.
-	// 	Different for size.even and size.odd
-	//
-	// 	this.size == power or two - 1;  // irdft works!
-	// 	this.size == power or two;  // irdft works!
-	// 	this.size == power or two + 1;  // irdft fails!
-	//
-	// 	*/
-	// 	magnitudePhase.put(
-	// 		0,
-	// 		magnitudePhase.at(0).performInPlace(
-	// 			'*',
-	// 			1,
-	// 			this.size.even.if({
-	// 				this.size - 1
-	// 			}, {
-	// 				this.size - 2
-	// 			}),
-	// 			2.0
-	// 		)
-	// 	);
-	//
-	// 	sineFill2List = this.size.collect({ arg i;
-	// 		[ i, magnitudePhase.at(0).at(i), 0.5pi + magnitudePhase.at(1).at(i) ]  // real
-	// 	});
-	//
-	// 	^Signal.newClear(size).sineFill2(sineFill2List).scale(size.reciprocal)
-	// }
+	/* real dft */
+	/*
+	NOTE: There are ambiguities regarding even and odd sizes in the time domain.
+	*/
 
 
 	// default - rdft
