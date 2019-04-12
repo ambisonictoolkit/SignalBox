@@ -834,6 +834,11 @@
 		})
 	}
 
+	*analyticFill { arg size, amplitudes, phases;
+		var analytic = Signal.cosineFill(size, amplitudes, phases).analytic;
+		^analytic * analytic.magnitude.maxItem.reciprocal  // normalize
+	}
+
 	/* convolution */
 
 	convolve { arg aSignal, method = 'fft';
