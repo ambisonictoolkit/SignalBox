@@ -807,4 +807,49 @@
 		})
 	}
 
+	/* convolution */
+
+	convolve { arg aSignal, method = 'fft';
+		var size = this.size + aSignal.size - 1;
+		var complex;
+
+		^method.switch(
+			'fft', {
+				var fftsize = size.nextPowerOfTwo.asInteger;
+				var rfftsize = fftsize/2 + 1;
+				var rfftDict = this.zeroPad(fftsize).rfftTwo(
+					aSignal.zeroPad(fftsize),
+					Signal.rfftTwoCosTable(rfftsize)
+				);
+				complex = rfftDict[\rfft1] * rfftDict[\rfft2];
+				complex.real.irfft(complex.imag, Signal.rfftCosTable(rfftsize)).keep(size)
+			},
+			'dft', {
+				complex = (this ++ Signal.newClear(aSignal.size - 1)).dft(
+					Signal.newClear(size)
+				) * (aSignal ++ Signal.newClear(this.size - 1)).dft(
+					Signal.newClear(size)
+				);
+				complex.real.idft(complex.imag).real;
+			},
+			'dir', {
+				var fac1, fac2;
+				var sum = Array.zeroFill(size);
+				(aSignal.size < this.size).if({
+					fac1 = aSignal.as(Array);
+					fac2 = this.as(Array) ++ Array.zeroFill(aSignal.size - 1);
+				}, {
+					fac1 = this.as(Array);
+					fac2 = aSignal.as(Array) ++ Array.zeroFill(this.size - 1);
+				});
+				fac1.do({ arg item, i;
+					sum = sum + (item * fac2.shift(i))
+				});
+				sum.as(Signal)
+			}, {
+				Error("Convolve method % is not available!".format(method)).throw;
+			}
+		)
+	}
+
 }
