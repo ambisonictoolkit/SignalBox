@@ -50,6 +50,32 @@
 		^this.as(Array).wrapExtend(size).as(Signal)
 	}
 
+	/* sine */
+
+	/* cosine */
+	*cosineFill { arg size, amplitudes, phases;
+		^Signal.newClear(size).cosineFill(amplitudes, phases).normalize
+	}
+
+	addCosine { arg harmonicNumber = 1, amplitude = 1.0, phase = 0.0;
+		^this.addSine(harmonicNumber, amplitude, phase + 0.5pi)
+	}
+
+	cosineFill { arg amplitudes, phases;
+		this.fill(0.0);
+		if (phases.isNil, { phases = #[0]; });
+		amplitudes.do({ arg amp, i; this.addCosine(i+1, amp, phases @@ i) });
+	}
+
+	cosineFill2 { arg list;
+		this.fill(0.0);
+		list.do({ arg item, i;
+			var harm, amp, phase;
+			# harm, amp, phase = item;
+			this.addCosine(harm, amp ? 1.0, phase ? 0.0);
+		});
+	}
+
 	/* rotation & phase */
 
 	// NOTE: match Hilbert phase rotation
@@ -164,32 +190,6 @@
 
 	odd {
 		^(0.5 * (this - this.flip))
-	}
-
-	/* sine */
-
-	/* cosine */
-	*cosineFill { arg size, amplitudes, phases;
-		^Signal.newClear(size).cosineFill(amplitudes, phases).normalize
-	}
-
-	addCosine { arg harmonicNumber = 1, amplitude = 1.0, phase = 0.0;
-		^this.addSine(harmonicNumber, amplitude, phase + 0.5pi)
-	}
-
-	cosineFill { arg amplitudes, phases;
-		this.fill(0.0);
-		if (phases.isNil, { phases = #[0]; });
-		amplitudes.do({ arg amp, i; this.addCosine(i+1, amp, phases @@ i) });
-	}
-
-	cosineFill2 { arg list;
-		this.fill(0.0);
-		list.do({ arg item, i;
-			var harm, amp, phase;
-			# harm, amp, phase = item;
-			this.addCosine(harm, amp ? 1.0, phase ? 0.0);
-		});
 	}
 
 	/* real fft */
