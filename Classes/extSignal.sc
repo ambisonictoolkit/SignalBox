@@ -76,6 +76,33 @@
 		});
 	}
 
+	/* magnitude & envelope */
+
+	rms { ^this.squared.mean.sqrt }
+
+	peakMagnitude { arg oversample = 1;
+		var osSize, osThis;
+
+		osSize = (oversample.isInteger || this.size.isPowerOfTwo).if({
+			(oversample * this.size).nextPowerOfTwo
+		}, {
+			(oversample * this.size).floor
+		}).asInteger;
+		osThis = this ++ Signal.newClear(osSize - this.size);
+
+		^(osSize.isPowerOfTwo).if({  // rfft
+			var cosTable = Signal.rfftCosTable(osSize/2 + 1);
+			osThis.rfft(cosTable).magnitude.maxItem
+		}, {  // czt via dft
+			osThis.dft(Signal.newClear(osSize)).magnitude.maxItem
+		})
+	}
+
+	// Normalize the Signal in place such that the maximum absolute peak value is 1.
+	normalizeMagnitude { arg oversample = 1;
+		^this.scale(this.peakMagnitude(oversample).reciprocal)
+	}
+
 	/* rotation & phase */
 
 	// NOTE: match Hilbert phase rotation
