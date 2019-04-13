@@ -1,0 +1,362 @@
+CLASSMETHODS::
+
+
+METHOD:: rfftCosTable
+
+Fourier Transform: Fill a Signal with the cosine table needed by the Real-FFT methods. See also the instance methods link::#-rfft:: and link::#-irfft::.
+
+code::
+Signal.rfftCosTable(512/2 + 1).plot;
+::
+
+METHOD:: rfftTwoCosTable
+
+Fourier Transform: Fill a Signal with the cosine table needed by the Real-FFT-Two methods. See also the instance methods link::#-rfftTwo:: and link::#-irfftTwo::.
+
+code::
+Signal.rfftTwoCosTable(512/2 + 1).plot;
+::
+
+METHOD:: cosineFill
+
+Fill a Signal of the given size with a sum of cosines at the given amplitudes and phases. The Signal will be normalized.
+
+code::
+Signal.cosineFill(1000, 1.0/[1, 2, 3, 4, 5, 6]).plot;
+::
+
+argument:: size
+the number of samples in the Signal.
+
+argument:: amplitudes
+an Array of amplitudes for each harmonic beginning with the fundamental.
+
+argument:: phases
+an Array of phases in radians for each harmonic beginning with the fundamental.
+
+
+METHOD:: zeroFill
+
+Fill a Signal of the given size with zeros. A synonym for link::Classes/ArrayedCollection#*newClear#*newClear::.
+
+code::
+Signal.zeroFill(1000).plot;
+::
+
+argument:: size
+the number of samples in the Signal.
+
+
+subsection:: Hilbert & Analytic
+
+
+METHOD:: hilbert
+
+Hilbert Transform: Return complex Hilbert Transform coefficients.
+
+code::
+(
+var complex;
+complex = Signal.hilbert(2048);
+complex.real.plot("real");
+complex.imag.plot("imag");
+)
+::
+
+argument:: size
+the number of samples in the Signal.
+
+argument:: pad
+the number of samples of the size that is zero padding.
+
+argument:: sym
+a Boolean indicating whether the window is symmetric or periodic. Default is false.
+
+METHOD:: analyticFill
+
+Return a complex analytic Signal of the given size with a sum of cosines and a sum of sines at the given amplitudes and phases. The Signal will be normalized.
+
+code::
+(
+var complex;
+complex = Signal.analyticFill(1000, 1.0/[1, 2, 3, 4, 5, 6]);
+complex.real.plot("real");
+complex.imag.plot("imag");
+)
+::
+
+argument:: size
+the number of samples in the Signal.
+
+argument:: amplitudes
+an Array of amplitudes for each harmonic beginning with the fundamental.
+
+argument:: phases
+an Array of phases in radians for each harmonic beginning with the fundamental.
+
+
+INSTANCEMETHODS::
+
+subsection:: Fourier Transform
+
+METHOD:: fftToRfft
+
+Return a complex Real-FFT spectrum from a complex FFT spectrum. See also the instance method link::#-rfftToFft::.
+
+code::
+(
+var size = 512, rfftsize, real, imag, cosTable, complexFft, complexRfft;
+rfftsize = size/2 + 1;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+imag = Signal.newClear(size);
+cosTable = Signal.fftCosTable(size);
+
+complexFft = fft(real, imag, cosTable);
+complexRfft = complexFft.real.fftToRfft(complexFft.imag);
+[real, imag, (complexFft.magnitude) / 100, (complexRfft.magnitude  ++ Signal.zeroFill(size - rfftsize)) / 100 ].flop.flat
+    .plot("fft & rfft", Rect(0, 0, 512 + 8, 500), numChannels: 4);
+)
+::
+
+
+METHOD:: rfft
+
+Perform a Real-FFT on a real signal in place. See also the class method link::#*rfftCosTable::.
+
+code::
+(
+var size = 512, rfftsize, real, cosTable, complex;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+rfftsize = size/2 + 1;
+cosTable = Signal.rfftCosTable(rfftsize);
+
+complex = rfft(real, cosTable);
+[real, (complex.magnitude ++ Signal.zeroFill(size - rfftsize)) / 100 ].flop.flat
+    .plot("rfft", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: irfft
+
+Perform an inverse Real-FFT on a real and imaginary signal in place. See also the class method link::#*rfftCosTable::.
+
+code::
+(
+var size = 512, rfftsize, real, cosTable, complex, irfft;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+rfftsize = size/2 + 1;
+cosTable = Signal.rfftCosTable(rfftsize);
+
+complex = rfft(real, cosTable).postln;
+irfft = complex.real.irfft(complex.imag, cosTable);
+
+[real, irfft].flop.flat
+    .plot("rfft and back", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: rfftToFft
+
+Return a complex FFT spectrum from a complex Real-FFT spectrum. See also the instance method link::#-fftToRfft::.
+
+code::
+(
+var size = 512, rfftsize, real, cosTable, complexRfft, complexFft;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+rfftsize = size/2 + 1;
+cosTable = Signal.rfftCosTable(rfftsize);
+
+complexRfft = rfft(real, cosTable);
+complexFft = complexRfft.real.rfftToFft(complexRfft.imag);
+[real, (complexRfft.magnitude ++ Signal.zeroFill(size - rfftsize)) / 100, (complexFft.magnitude) / 100 ].flop.flat
+    .plot("rfft & fft", Rect(0, 0, 512 + 8, 500), numChannels: 3);
+)
+::
+
+
+METHOD:: rfftTwo
+
+Perform a Real-FFT on two real signals in place. See also the class method link::#*rfftTwoCosTable::.
+
+code::
+(
+var size = 512, rfftsize, real1, real2, cosTable, complexDict;
+
+        // some harmonics
+real1 = Signal.newClear(size);
+real1.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+
+        // some noise
+real2 = Signal.newClear(size);
+real2.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+rfftsize = size/2 + 1;
+cosTable = Signal.rfftTwoCosTable(rfftsize);
+
+complexDict = rfftTwo(real1, real2, cosTable);
+[real1, (complexDict[\rfft1].magnitude ++ Signal.zeroFill(size - rfftsize)) / 100,
+	real2, (complexDict[\rfft2].magnitude ++ Signal.zeroFill(size - rfftsize)) / 100
+].flop.flat
+    .plot("rfftTwo", Rect(0, 0, 512 + 8, 500), numChannels: 4);
+)
+::
+
+
+METHOD:: irfftTwo
+
+Perform an inverse Real-FFT on two real and imaginary signals in place. See also the class method link::#*rfftTwoCosTable::.
+
+code::
+(
+var size = 512, rfftsize, real1, real2, cosTable, complexDict, irfftDict;
+
+        // some harmonics
+real1 = Signal.newClear(size);
+real1.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+
+        // some noise
+real2 = Signal.newClear(size);
+real2.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+rfftsize = size/2 + 1;
+cosTable = Signal.rfftTwoCosTable(rfftsize);
+
+complexDict = rfftTwo(real1, real2, cosTable).postln;
+irfftDict = complexDict[\rfft1].real.irfftTwo(complexDict[\rfft1].imag, complexDict[\rfft2].real, complexDict[\rfft2].imag, cosTable);
+
+[real1, real2, irfftDict[\irfft1], irfftDict[\irfft2]].flop.flat
+    .plot("rfftTwo and back", Rect(0, 0, 512 + 8, 500), numChannels: 4);
+)
+::
+
+
+METHOD:: dft
+
+Perform a DFT on a real and imaginary in place.
+
+NOTE::code::size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 1000, real, imag, complex;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+imag = Signal.newClear(size);
+
+complex = dft(real, imag);
+[real, (complex.magnitude) / 100 ].flop.flat
+    .plot("dft", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: idft
+
+Perform an inverse DFT on a real and imaginary in place.
+
+NOTE::code::size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 1000, real, imag, complex, idft;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+imag = Signal.newClear(size);
+
+complex = dft(real, imag).postln;
+idft = complex.real.idft(complex.imag);
+
+[real, idft.real].flop.flat
+    .plot("dft and back", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: dftZoom
+
+Perform a Zoom DFT on a real and imaginary signal in place.
+
+NOTE::code::Signal.size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 512, zoomsize = 512, k0, k1, real, imag, complex;
+
+k0 = 0;  // start at DC
+k1 = 60;  // just above last harmonic
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+imag = Signal.newClear(size);
+
+complex = dftZoom(real, imag, zoomsize, k0, k1);
+[real, (complex.magnitude) / 100 ].flop.flat
+    .plot("dftZoom", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: rdftZoom
+
+Perform a Zoom DFT on a real signal in place.
+
+NOTE::code::Signal.size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 512, zoomsize = 512, k0, k1, real, complex;
+
+k0 = 0;  // start at DC
+k1 = 60;  // just above last harmonic
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+complex = rdftZoom(real, zoomsize, k0, k1);
+[real, (complex.magnitude) / 100 ].flop.flat
+    .plot("rdftZoom", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
