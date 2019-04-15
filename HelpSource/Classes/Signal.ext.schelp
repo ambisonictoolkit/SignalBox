@@ -152,7 +152,7 @@ subsection:: Chirp z-Transform
 
 METHOD:: czt
 
-Perform a Chirp z-Transform on a real and imaginary signal in place.
+Perform a Chirp z-Transform on a real and imaginary signal.
 
 code::
 (
@@ -189,7 +189,7 @@ NOTE::The default code::nil:: values of code::cwtsize::, code::step::, and code:
 
 METHOD:: rczt
 
-Perform a Chirp z-Transform on a real signal in place.
+Perform a Chirp z-Transform on a real signal.
 
 code::
 (
@@ -249,7 +249,7 @@ complexRfft = complexFft.real.fftToRfft(complexFft.imag);
 
 METHOD:: rfft
 
-Perform a Real-FFT on a real signal in place. See also the class method link::#*rfftCosTable::.
+Perform a Real-FFT on a real signal. See also the class method link::#*rfftCosTable::.
 
 code::
 (
@@ -273,7 +273,7 @@ complex = rfft(real, cosTable);
 
 METHOD:: irfft
 
-Perform an inverse Real-FFT on a real and imaginary signal in place. See also the class method link::#*rfftCosTable::.
+Perform an inverse Real-FFT on a real and imaginary signal. See also the class method link::#*rfftCosTable::.
 
 code::
 (
@@ -324,7 +324,7 @@ complexFft = complexRfft.real.rfftToFft(complexRfft.imag);
 
 METHOD:: rfftTwo
 
-Perform a Real-FFT on two real signals in place. See also the class method link::#*rfftTwoCosTable::.
+Perform a Real-FFT on two real signals. See also the class method link::#*rfftTwoCosTable::.
 
 code::
 (
@@ -352,7 +352,7 @@ complexDict = rfftTwo(real1, real2, cosTable);
 
 METHOD:: irfftTwo
 
-Perform an inverse Real-FFT on two real and imaginary signals in place. See also the class method link::#*rfftTwoCosTable::.
+Perform an inverse Real-FFT on two real and imaginary signals. See also the class method link::#*rfftTwoCosTable::.
 
 code::
 (
@@ -380,7 +380,7 @@ irfftDict = complexDict[\rfft1].real.irfftTwo(complexDict[\rfft1].imag, complexD
 
 METHOD:: dft
 
-Perform a DFT on a real and imaginary signal in place.
+Perform a DFT on a real and imaginary signal.
 
 NOTE::code::size:: is not restricted to a power of two.::
 
@@ -415,7 +415,7 @@ table::
 
 METHOD:: idft
 
-Perform an inverse DFT on a real and imaginary signal in place.
+Perform an inverse DFT on a real and imaginary signal.
 
 NOTE::code::size:: is not restricted to a power of two.::
 
@@ -452,7 +452,7 @@ table::
 
 METHOD:: dftZoom
 
-Perform a Zoom DFT on a real and imaginary signal in place.
+Perform a Zoom DFT on a real and imaginary signal.
 
 code::
 (
@@ -493,7 +493,7 @@ highest DFT coefficient. Not required to be an integer.
 
 METHOD:: rdftZoom
 
-Perform a Zoom DFT on a real signal in place.
+Perform a Zoom DFT on a real signal.
 
 NOTE::code::Signal.size:: is not restricted to a power of two.::
 
@@ -529,7 +529,7 @@ highest DFT coefficient. Not required to be an integer.
 
 METHOD:: goertzel
 
-Return individual terms of a DFT on a real and imaginary signal in place.
+Return individual terms of a DFT on a real and imaginary signal.
 
 NOTE::code::Signal.size:: is not restricted to a power of two.::
 
@@ -572,7 +572,7 @@ table::
 
 METHOD:: rgoertzel
 
-Return individual terms of a DFT on a real signal in place.
+Return individual terms of a DFT on a real signal.
 
 NOTE::code::Signal.size:: is not restricted to a power of two.::
 
