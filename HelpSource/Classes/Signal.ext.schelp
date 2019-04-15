@@ -380,7 +380,7 @@ irfftDict = complexDict[\rfft1].real.irfftTwo(complexDict[\rfft1].imag, complexD
 
 METHOD:: dft
 
-Perform a DFT on a real and imaginary in place.
+Perform a DFT on a real and imaginary signal in place.
 
 NOTE::code::size:: is not restricted to a power of two.::
 
@@ -402,10 +402,20 @@ complex = dft(real, imag);
 )
 ::
 
+argument:: imag
+imaginary signal.
+
+argument:: method
+
+table::
+    ## code::'czt':: || Chirp z-Transform
+    ## code::'dir':: || evaluate directly
+::
+
 
 METHOD:: idft
 
-Perform an inverse DFT on a real and imaginary in place.
+Perform an inverse DFT on a real and imaginary signal in place.
 
 NOTE::code::size:: is not restricted to a power of two.::
 
@@ -429,12 +439,20 @@ idft = complex.real.idft(complex.imag);
 )
 ::
 
+argument:: imag
+imaginary signal.
+
+argument:: method
+
+table::
+    ## code::'czt':: || Chirp z-Transform
+    ## code::'dir':: || evaluate directly
+::
+
 
 METHOD:: dftZoom
 
 Perform a Zoom DFT on a real and imaginary signal in place.
-
-NOTE::code::Signal.size:: is not restricted to a power of two.::
 
 code::
 (
@@ -456,6 +474,21 @@ complex = dftZoom(real, imag, zoomsize, k0, k1);
     .plot("dftZoom", Rect(0, 0, 512 + 8, 500), numChannels: 2);
 )
 ::
+
+NOTE::code::Signal.size:: is not restricted to a power of two.::
+
+argument:: imag
+imaginary signal.
+
+argument:: zoomsize
+the number of coefficients to return.
+
+argument:: k0
+lowest DFT coefficient. Not required to be an integer.
+
+argument:: k1
+highest DFT coefficient. Not required to be an integer.
+
 
 
 METHOD:: rdftZoom
