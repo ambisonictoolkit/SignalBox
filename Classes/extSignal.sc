@@ -609,7 +609,7 @@
 
 			^reshapeComplexArray.value(
 				k.collect({ arg item;
-					this.goertzel(item, method)
+					this.rgoertzel(item, method)
 				})
 			)
 		}, {
