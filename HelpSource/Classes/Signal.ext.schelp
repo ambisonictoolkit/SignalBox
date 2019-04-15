@@ -482,3 +482,94 @@ complex = rdftZoom(real, zoomsize, k0, k1);
     .plot("rdftZoom", Rect(0, 0, 512 + 8, 500), numChannels: 2);
 )
 ::
+
+argument:: zoomsize
+the number of coefficients to return.
+
+argument:: k0
+lowest DFT coefficient. Not required to be an integer.
+
+argument:: k1
+highest DFT coefficient. Not required to be an integer.
+
+
+
+METHOD:: goertzel
+
+Return individual terms of a DFT on a real and imaginary signal in place.
+
+NOTE::code::Signal.size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 1000, real, imag, complex;
+var k = [8, 13, 21, 55];
+
+real = Signal.newClear(size);
+        // some harmonics
+real.cosineFill2([[k[0]], [k[1], 0.5], [k[2], 0.25], [k[3], 0.125, 0.5pi]]);
+
+imag = Signal.newClear(size);
+
+complex = goertzel(real, imag, k);
+
+
+"synthesized harmonics".postln;
+"  magnitude: ".post;
+(complex.magnitude / (size/2)).postln;
+"  phase: ".post;
+(complex.phase).postln;
+)
+::
+
+argument:: imag
+imaginary signal.
+
+argument:: k
+DFT coefficient(s) as a single value or an Array. Not required to be an integer.
+
+argument:: method
+
+table::
+    ## code::'iir':: || Goertzel's algorithm
+    ## code::'dir':: || evaluate directly
+    ## code::'czt':: || Chirp z-Transform
+::
+
+
+METHOD:: rgoertzel
+
+Return individual terms of a DFT on a real signal in place.
+
+NOTE::code::Signal.size:: is not restricted to a power of two.::
+
+code::
+(
+var size = 1000, real, imag, complex;
+var k = [8, 13, 21, 55];
+
+real = Signal.newClear(size);
+        // some harmonics
+real.cosineFill2([[k[0]], [k[1], 0.5], [k[2], 0.25], [k[3], 0.125, 0.5pi]]);
+
+complex = rgoertzel(real, k);
+
+
+"synthesized harmonics".postln;
+"  magnitude: ".post;
+(complex.magnitude / (size/2)).postln;
+"  phase: ".post;
+(complex.phase).postln;
+)
+::
+
+argument:: k
+DFT coefficient(s) as a single value or an Array. Not required to be an integer.
+
+argument:: method
+
+table::
+    ## code::'iir':: || Goertzel's algorithm
+    ## code::'dir':: || evaluate directly
+    ## code::'czt':: || Chirp z-Transform
+::
