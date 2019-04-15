@@ -97,6 +97,128 @@ an Array of phases in radians for each harmonic beginning with the fundamental.
 
 INSTANCEMETHODS::
 
+subsection:: Cepstrum
+
+METHOD:: rceps
+
+Return the real part of the cepstrum of a real signal.
+
+code::
+(
+var size = 1000, real, realceps;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+        // make an "echo"
+real.overDub(real.rotateWave(-pi/4));
+
+realceps = rceps(real);
+[real, realceps].flop.flat
+    .plot("rceps", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: irceps
+
+Return the real part of the inverse of the real part of the cepstrum.
+
+code::
+(
+var size = 1000, real, realceps, irealceps;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+
+realceps = rceps(real);
+irealceps = irceps(realceps);
+
+[real, irealceps].flop.flat
+    .plot("irceps - phase is lost!", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+subsection:: Chirp z-Transform
+
+METHOD:: czt
+
+Perform a Chirp z-Transform on a real and imaginary signal in place.
+
+code::
+(
+var size = 1000, real, imag, complex;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+imag = Signal.newClear(size);
+
+complex = czt(real, imag);  // just the DFT!
+[real, (complex.magnitude) / 100 ].flop.flat
+    .plot("dft via czt", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+argument:: imag
+imaginary signal.
+
+argument:: cwtsize
+the number of coefficients to return. Defaults to code::this.size::.
+
+argument:: step
+ratio between points along the z-plane spiral contour of interest. Defaults to code::(0.0.complex(-2pi/cwtsize)).exp::.
+
+argument:: start
+complex starting point on that contour. Defaults to code::1::.
+
+NOTE::The default code::nil:: values of code::cwtsize::, code::step::, and code::start:: return the DFT.::
+
+
+METHOD:: rczt
+
+Perform a Chirp z-Transform on a real signal in place.
+
+code::
+(
+var size = 1000, real, complex;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+complex = rczt(real);  // just the DFT!
+[real, (complex.magnitude) / 100 ].flop.flat
+    .plot("dft via rczt", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+argument:: cwtsize
+the number of coefficients to return. Defaults to code::this.size::.
+
+argument:: step
+ratio between points along the z-plane spiral contour of interest. Defaults to code::(0.0.complex(-2pi/cwtsize)).exp::.
+
+argument:: start
+complex starting point on that contour. Defaults to code::1::.
+
+NOTE::The default code::nil:: values of code::cwtsize::, code::step::, and code::start:: return the DFT.::
+
+
 subsection:: Fourier Transform
 
 METHOD:: fftToRfft
