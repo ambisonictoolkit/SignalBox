@@ -47,30 +47,8 @@ argument:: size
 the number of samples in the Signal.
 
 
-subsection:: Hilbert & Analytic
+subsection:: Analytic & Hilbert
 
-
-METHOD:: hilbert
-
-Hilbert Transform: Return complex Hilbert Transform coefficients.
-
-code::
-(
-var complex;
-complex = Signal.hilbert(2048);
-complex.real.plot("real");
-complex.imag.plot("imag");
-)
-::
-
-argument:: size
-the number of samples in the Signal.
-
-argument:: pad
-the number of samples of the size that is zero padding.
-
-argument:: sym
-a Boolean indicating whether the window is symmetric or periodic. Default is false.
 
 METHOD:: analyticFill
 
@@ -95,7 +73,327 @@ argument:: phases
 an Array of phases in radians for each harmonic beginning with the fundamental.
 
 
+METHOD:: hilbert
+
+Hilbert Transform: Return complex Hilbert Transform coefficients.
+
+code::
+(
+var complex;
+complex = Signal.hilbert(2048);
+complex.real.plot("real");
+complex.imag.plot("imag");
+)
+::
+
+argument:: size
+the number of samples in the Signal.
+
+argument:: pad
+the number of samples of the size that is zero padding.
+
+argument:: sym
+a Boolean indicating whether the window is symmetric or periodic. Default is false.
+
+
 INSTANCEMETHODS::
+
+METHOD:: addCosine
+
+Add a single cosine to myself with the given harmonic, amplitude and phase.
+
+
+METHOD:: cosineFill
+
+Add a sum of cosines to myself with the given amplitudes and phases.
+
+code::
+Signal.cosineFill(1000, 1.0/[1, 2, 3, 4, 5, 6]).plot;
+::
+
+argument:: amplitudes
+an Array of amplitudes for each harmonic beginning with the fundamental.
+
+argument:: phases
+an Array of phases in radians for each harmonic beginning with the fundamental.
+
+
+METHOD:: cosineFill2
+
+Add a sum of cosines to myself with the given harmonics, amplitudes and phases.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+Signal.newClear(1000).cosineFill2(list).plot;
+)
+::
+
+argument:: list
+a rank 2 collection containing harmonic numbers, amplitudes and phases.
+
+
+subsection:: Analytic & Complex
+
+METHOD:: analytic
+
+Hilbert Transform: Return a complex analytic signal from a real signal.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var real, complex;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real = Signal.newClear(1000).cosineFill2(list);
+complex = real.analytic;
+
+[real, complex.real, complex.imag].flop.flat
+    .plot("real, complex.real, complex.imag", Rect(0, 0, 1000 + 8, 500), numChannels: 3);
+)
+::
+
+
+METHOD:: complex
+
+Return a complex signal with the given real and imaginary parts.
+
+code::
+(
+var size = 1000, real, imag, complex;
+
+real = Signal.newClear(size).sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+imag = Signal.newClear(size).overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+complex = real.complex(imag);
+[complex.real, complex.imag].flop.flat
+    .plot("complex.real, complex.imag", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+subsection:: Rotation & Phase
+
+METHOD:: rotateWave
+
+Rotate the Signal by a value in radians, strong::in place::.
+
+NOTE::The signal is regarded as one period of a waveform.::
+
+code::
+(
+var size = 1000, real, rotated;
+
+real = Signal.newClear(size).cosineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+
+rotated = real.deepCopy.rotateWave(-pi/2);
+
+[real, rotated].flop.flat
+    .plot("rotate waveform: original and rotated", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: rotatePhase
+
+Rotate the phase of Signal by a value in radians, strong::in place::.
+
+code::
+(
+var size = 1000, real, rotated;
+
+real = Signal.newClear(size).cosineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+
+rotated = real.deepCopy.rotatePhase(-pi/2);
+
+[real, rotated].flop.flat
+    .plot("rotate phase: original and rotated", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: linearPhase
+
+Return a linear phase kernel, preserving the magnitude, strong::in place::.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var real, reset;
+
+numharms = 16;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real = Signal.newClear(1000).cosineFill2(list).normalize;
+
+reset = real.deepCopy.linearPhase;
+
+[real, reset].flop.flat
+    .plot("reset phase: original and linear", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+argument:: sym
+a Boolean indicating whether the window is symmetric or periodic. Default is false.
+
+
+METHOD:: minimumPhase
+
+Return a minimum phase kernel, preserving the magnitude, strong::in place::.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var real, reset;
+
+numharms = 16;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real = Signal.newClear(1000).cosineFill2(list).normalize;
+
+reset = real.deepCopy.minimumPhase(oversample: 8);
+
+[real, reset].flop.flat
+    .plot("reset phase: original and minimum", Rect(0, 0, 1000 + 8, 500), numChannels: 2);
+)
+::
+
+argument:: mindb
+a minimum value in dB to clip amplitude response to. Reduces time aliasing.
+
+argument:: oversample
+time oversampling scale factor. May be a float or an integer. Reduces time aliasing.
+
+
+METHOD:: even
+
+Return the even part of a signal.
+
+code::
+(
+var size = 1000, numharms = 16, harms, amps, phases, list;
+var cosines, sines, sum, even, odd;
+
+harms = Array.rand(numharms, 1, numharms);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.zeroFill(numharms);
+
+list = [harms, amps, phases].lace.clump(3);
+
+cosines = Signal.newClear(1000).cosineFill2(list.keep((numharms/2).asInteger)).normalize;  // half as cosines...
+sines = Signal.newClear(1000).sineFill2(list.keep((numharms.neg/2).asInteger)).normalize;  // ... half as sines
+
+sum = cosines + sines;  // sum
+
+even = sum.even;  // even is cosines!
+odd = sum.odd;  // odd is sines!
+
+[cosines, sines, sum, even, odd].flop.flat
+.plot("cosines, sines, sum, even, odd", Rect(0, 0, 1000 + 8, 500), numChannels: 5);
+)
+::
+
+
+
+METHOD:: odd
+
+Return the odd part of a signal.
+
+
+subsection:: RMS & Magnitude
+
+METHOD:: rms
+
+Return the RMS of a signal.
+
+code::
+Signal.rectWindow(1000).rms;
+Signal.sineFill(1000, [1]).rms;
+Signal.cosineFill(1000, [1]).rms;
+Signal.hannWindow(1000).rms;
+::
+
+METHOD:: peakMagnitude
+
+Return the peak of the frequency domain magnitude of a signal.
+
+code::
+(
+var size = 512, real, imag, cosTable, complex;
+var peakMag;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+peakMag = (real.peakMagnitude / 100);  // scale to plotted value
+
+
+imag = Signal.newClear(size);
+cosTable = Signal.fftCosTable(size);
+
+complex = fft(real, imag, cosTable);
+
+[real, imag, (complex.magnitude) / 100 ].flop.flat
+    .plot("fft: peak magnitude = %".format(peakMag), Rect(0, 0, 512 + 8, 500), numChannels: 3);
+)
+::
+
+argument:: oversample
+time oversampling scale factor. May be a float or an integer.
+
+
+METHOD:: normalizeMagnitude
+
+Normalize the Signal strong::in place:: such that the maximum magnitude in the frequency domain is 1.
+
+code::
+(
+var size = 512, real, imag, cosTable, complex;
+
+real = Signal.newClear(size);
+        // some harmonics
+real.sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125, 0.5pi]]);
+        // add a little noise
+real.overDub(Signal.fill(size, { 0.2.bilinrand }));
+
+// real.put(0, -12.dbamp);  // for comparison... impulse response
+real.normalizeMagnitude;
+
+imag = Signal.newClear(size);
+cosTable = Signal.fftCosTable(size);
+
+complex = fft(real, imag, cosTable);
+
+[real, imag, (complex.magnitude) ].flop.flat
+    .plot("fft: peak magnitude = 1.0", Rect(0, 0, 512 + 8, 500), numChannels: 3);
+)
+::
+
+argument:: oversample
+time oversampling scale factor. May be a float or an integer.
+
+
 
 subsection:: Cepstrum
 
