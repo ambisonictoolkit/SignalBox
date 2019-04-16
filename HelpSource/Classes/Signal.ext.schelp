@@ -140,6 +140,91 @@ argument:: list
 a rank 2 collection containing harmonic numbers, amplitudes and phases.
 
 
+METHOD:: wrapExtend
+
+Returns a new Signal whose elements are repeated sequences of the receiver, up to size length. The receiver is unchanged.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var size = 600;
+var real1, real2;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real1 = Signal.newClear(size).cosineFill2(list);
+real2 = real1.wrapExtend(size.nextPowerOfTwo);
+
+[real1.zeroPad(size.nextPowerOfTwo), real2 ].flop.flat
+    .plot("wrapExtend", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+
+)
+::
+
+subsection:: Unary Messages
+
+METHOD:: flip
+
+The flip operator.
+
+code::
+(
+var size = 1000;
+var cosine, sine, cosineF, sineF;
+
+cosine = Signal.newClear(size).cosineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125]]);
+sine = Signal.newClear(size).sineFill2([[8], [13, 0.5], [21, 0.25], [55, 0.125]]);
+
+cosineF = cosine.flip;
+sineF = sine.flip;
+
+[cosine, cosineF, sine, sineF].flop.flat
+    .plot("cosine, cosine.flip, sine, sine.flip", Rect(0, 0, size + 8, 500), numChannels: 4);
+)
+::
+
+
+subsection:: Binary Messages
+
+METHOD:: convolve
+
+Convolve myself with a signal.
+
+code::
+(
+var size1 = 1000, size2 = 200, size3;
+var win1, win2, win3;
+
+win1 = Signal.hannWindow(size1);
+win2 = Signal.series(size2, 0.0, (size2.reciprocal));
+
+win3 = win1.convolve(win2);
+
+size3 = win3.size;
+
+
+[win1.zeroPad(size3), win2.zeroPad(size3), win3.zeroPad(size3)].flop.flat
+.plot("win1, win2, win1*win2", Rect(0, 0, size3 + 8, 500), numChannels: 3);
+)
+::
+
+argument:: aSignal
+the multiplier.
+
+argument:: method
+
+table::
+    ## code::'fft':: || Radix-2 Discrete Fourier Transform
+    ## code::'dft':: || Discrete Fourier Transform
+    ## code::'dir':: || evaluate directly
+::
+
+
+
 subsection:: Analytic & Complex
 
 METHOD:: analytic
