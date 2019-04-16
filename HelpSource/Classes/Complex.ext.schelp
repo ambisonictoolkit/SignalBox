@@ -1,0 +1,6 @@
+
+INSTANCEMETHODS::
+
+subsection:: math support
+
+copymethod:: Polar, -rotate
