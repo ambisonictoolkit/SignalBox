@@ -106,75 +106,80 @@
 	/* rotation & phase */
 
 	// NOTE: match Hilbert phase rotation
-	// -rotatePeriod ??
 	rotateWave { arg phase;
 		var precision = 0.1;  // corresponds to integer
 		var n = phase / 2pi.neg * this.size;
 		var intN = n.asInteger;
 
-		^n.equalWithPrecision(intN, precision).if({  // direct
-			this.deepCopy.rotate(n)
-		}, {
-			(this.size.isPowerOfTwo).if({  // fft
-				var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
-				var complex = this.rfft(cosTable);
-				var rotatedComplex = complex.rotate(phase);
-				rotatedComplex.real.irfft(rotatedComplex.imag, cosTable)
-			}, {  // dft
-				var complex = this.dft(Signal.newClear(this.size));
-				var rotatedComplex;
-				var halfsize = (this.size/2).floor;
+		^this.overWrite(
+			n.equalWithPrecision(intN, precision).if({  // direct
+				this.rotate(n)
+			}, {
+				(this.size.isPowerOfTwo).if({  // fft
+					var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
+					var complex = this.rfft(cosTable);
+					var rotatedComplex = complex.rotate(phase);
+					rotatedComplex.real.irfft(rotatedComplex.imag, cosTable)
+				}, {  // dft
+					var complex = this.dft(Signal.newClear(this.size));
+					var rotatedComplex;
+					var halfsize = (this.size/2).floor;
 
-				rotatedComplex = this.size.even.if({
-					complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))
-				}, {
-					complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))
-				});
-				rotatedComplex.real.idft(rotatedComplex.imag).real
+					rotatedComplex = this.size.even.if({
+						complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))
+					}, {
+						complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))
+					});
+					rotatedComplex.real.idft(rotatedComplex.imag).real
+				})
 			})
-		})
+		)
 	}
 
 	rotatePhase { arg phase;
 		var complex;
 
-		^(this.size.isPowerOfTwo).if({  // rfft
-			var cosTable = Signal.rfftCosTable(this.size/2 + 1);
+		^this.overWrite(
+			(this.size.isPowerOfTwo).if({  // rfft
+				var cosTable = Signal.rfftCosTable(this.size/2 + 1);
 
-			complex = this.rfft(cosTable);  // real fft
-			complex = Complex.new(phase.cos, phase.sin) * complex;  // rotate
+				complex = this.rfft(cosTable);  // real fft
+				complex = Complex.new(phase.cos, phase.sin) * complex;  // rotate
 
-			complex.real.irfft(complex.imag, cosTable)  // irfft
-		}, {  // czt via analytic
-			complex = this.analytic;
+				complex.real.irfft(complex.imag, cosTable)  // irfft
+			}, {  // czt via analytic
+				complex = this.analytic;
 
-			// equivalent to: (Complex.new(phase.cos, phase.sin) * complex).real
-			(phase.cos * complex.real) + (phase.sin.neg * complex.imag)
-		})
+				// equivalent to: (Complex.new(phase.cos, phase.sin) * complex).real
+				(phase.cos * complex.real) + (phase.sin.neg * complex.imag)
+			})
+		)
 	}
 
 	linearPhase { arg sym = false;
 		var magnitude, phase, complex;
 
-		^(this.size.isPowerOfTwo).if({  // rfft
-			var cosTable = Signal.rfftCosTable(this.size/2 + 1);
-			var rcomplex, rcomplexMin;
+		^this.overWrite(
+			(this.size.isPowerOfTwo).if({  // rfft
+				var cosTable = Signal.rfftCosTable(this.size/2 + 1);
+				var rcomplex, rcomplexMin;
 
-			rcomplex = this.rfft(cosTable);  // real fft
-			magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
-			phase = magnitude.linearPhase(sym);  // linear phase
+				rcomplex = this.rfft(cosTable);  // real fft
+				magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
+				phase = magnitude.linearPhase(sym);  // linear phase
 
-			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
-			rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
+				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
+				rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
-			rcomplexMin.real.irfft(rcomplexMin.imag, cosTable)  // irfft
-		}, {  // czt via dft
-			magnitude = this.dft(Signal.newClear(this.size)).magnitude;  // magnitude
-			phase = magnitude.linearPhase(sym);  // linear phase
-			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
+				rcomplexMin.real.irfft(rcomplexMin.imag, cosTable)  // irfft
+			}, {  // czt via dft
+				magnitude = this.dft(Signal.newClear(this.size)).magnitude;  // magnitude
+				phase = magnitude.linearPhase(sym);  // linear phase
+				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
 
-			complex.real.idft(complex.imag).real  // idft
-		})
+				complex.real.idft(complex.imag).real  // idft
+			})
+		)
 	}
 
 	// Hilbert minimum phase
@@ -189,25 +194,27 @@
 		}).asInteger;
 		osThis = this ++ Signal.newClear(osSize - this.size);
 
-		^(osSize.isPowerOfTwo).if({  // rfft
-			var cosTable = Signal.rfftCosTable(osSize/2 + 1);
-			var rcomplex, rcomplexMin;
+		^this.overWrite(
+			(osSize.isPowerOfTwo).if({  // rfft
+				var cosTable = Signal.rfftCosTable(osSize/2 + 1);
+				var rcomplex, rcomplexMin;
 
-			rcomplex = osThis.rfft(cosTable);  // real fft
-			magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
-			phase = magnitude.minimumPhase(mindb);  // minimum phase
+				rcomplex = osThis.rfft(cosTable);  // real fft
+				magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
+				phase = magnitude.minimumPhase(mindb);  // minimum phase
 
-			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
-			rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
+				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+				rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
-			rcomplexMin.real.irfft(rcomplexMin.imag, cosTable).keep(this.size)  // irfft
-		}, {  // czt via dft
-			magnitude = osThis.dft(Signal.newClear(osSize)).magnitude;  // magnitude
-			phase = magnitude.minimumPhase(mindb);  // minimum phase
-			complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+				rcomplexMin.real.irfft(rcomplexMin.imag, cosTable).keep(this.size)  // irfft
+			}, {  // czt via dft
+				magnitude = osThis.dft(Signal.newClear(osSize)).magnitude;  // magnitude
+				phase = magnitude.minimumPhase(mindb);  // minimum phase
+				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
 
-			complex.real.idft(complex.imag).real.keep(this.size)  // idft
-		})
+				complex.real.idft(complex.imag).real.keep(this.size)  // idft
+			})
+		)
 	}
 
 	/* real even and odd */
