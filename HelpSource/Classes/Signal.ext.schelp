@@ -240,6 +240,7 @@ phases = Array.rand(numharms, 0, 2pi);
 
 list = [harms, amps, phases].lace.clump(3);
 real = Signal.newClear(1000).cosineFill2(list).normalize;
+real = real * Signal.hannWindow(1000);  // window
 
 reset = real.deepCopy.linearPhase;
 
@@ -268,6 +269,7 @@ phases = Array.rand(numharms, 0, 2pi);
 
 list = [harms, amps, phases].lace.clump(3);
 real = Signal.newClear(1000).cosineFill2(list).normalize;
+real = real * Signal.hannWindow(1000);  // window
 
 reset = real.deepCopy.minimumPhase(oversample: 8);
 
