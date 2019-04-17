@@ -1,0 +1,47 @@
+
+INSTANCEMETHODS::
+
+subsection:: Fourier Transform
+
+
+METHOD:: fftFreqs
+
+RETURNS:: the Discrete Fourier Transform sample frequencies.
+
+DISCUSSION::
+
+code::
+(
+var fftsize = 128, sampleRate = 44100;
+fftsize.fftFreqs(sampleRate)
+)
+::
+
+
+
+METHOD:: rfftFreqs
+
+RETURNS:: the Discrete Fourier Transform sample frequencies.
+
+DISCUSSION::
+
+code::
+(
+var rfftsize = (128/2 + 1).asInteger, sampleRate = 44100;
+rfftsize.rfftFreqs(sampleRate)
+)
+::
+
+
+METHOD:: dftFreqs
+
+RETURNS:: the Discrete Fourier Transform sample frequencies.
+
+DISCUSSION::
+
+code::
+(
+var dftsize = 1000, sampleRate = 44100;
+dftsize.dftFreqs(sampleRate)
+)
+::
