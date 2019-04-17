@@ -1,0 +1,63 @@
+INSTANCEMETHODS::
+
+subsection:: Mapping
+
+
+METHOD:: kFreqs
+
+Convert a Collection of DFT coefficient numbers to frequencies.
+
+code::
+(
+var fftsize = 128, sampleRate = 44100;
+var fftfreqs;
+var kFreqs;
+
+// find fftfreqs
+fftfreqs = fftsize.fftFreqs(sampleRate);
+
+// find kFreqs
+kFreqs = Array.series(fftsize).kFreqs(fftsize, sampleRate);
+
+// same?
+fftfreqs == kFreqs
+)
+::
+
+argument:: size
+
+DFT size
+
+argument:: sampleRate
+
+signal sample rate. Defaults to normalized frequency.
+
+
+METHOD:: freqKs
+
+Convert a Collection of frequencies to DFT coefficient numbers.
+
+code::
+(
+var fftsize = 128, sampleRate = 44100;
+var fftfreqs;
+var ks;
+
+// find fftfreqs
+fftfreqs = fftsize.fftFreqs(sampleRate);
+
+// convert freqs to ks
+ks = fftfreqs.freqKs(fftsize, sampleRate);
+
+// same?
+ks.asInteger == Array.series(fftsize)
+)
+::
+
+argument:: size
+
+DFT size
+
+argument:: sampleRate
+
+signal sample rate. Defaults to normalized frequency.
