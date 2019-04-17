@@ -29,23 +29,6 @@
 		^Array.fill(size, {0.0} )
 	}
 
-	/* Goertzel, DFT helper */
-
-	// the receiver is an array of frequencies
-	freqKs { arg size, sampleRate;
-		^this.collect({ arg item;
-			item.freqK(size, sampleRate)
-		})
-	}
-
-	// the receiver is an array of ks
-	kFreqs { arg size, sampleRate;
-		^this.collect({ arg item;
-			item.kFreq(size, sampleRate)
-		})
-	}
-
-
 	/* phase helpers */
 
 	// input is magnitude of +/-frequencies

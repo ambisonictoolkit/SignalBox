@@ -31,4 +31,21 @@
 	threshdb { arg aNumber, adverb; ^this.performBinaryOp('threshdb', aNumber, adverb) }
 
 	clipdb { arg ... args; ^this.multiChannelPerform('clipdb', *args) }
+
+
+	/* Goertzel, DFT helper */
+
+	// the receiver is an array of frequencies
+	freqKs { arg size, sampleRate;
+		^this.collect({ arg item;
+			item.freqK(size, sampleRate)
+		})
+	}
+
+	// the receiver is an array of ks
+	kFreqs { arg size, sampleRate;
+		^this.collect({ arg item;
+			item.kFreq(size, sampleRate)
+		})
+	}
 }
