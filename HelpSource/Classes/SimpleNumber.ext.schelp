@@ -1,0 +1,93 @@
+
+INSTANCEMETHODS::
+
+subsection:: math support
+
+
+METHOD:: threshdb
+
+Bilateral thresholding, in terms of dB.
+
+code::
+a = Array.series(8, -4);
+b = a.threshdb(6.0);
+a.plot("a");
+b.plot("a.threshdb(6.0)");
+::
+
+
+METHOD:: maxdb
+
+Bilateral maximum, in terms of dB.
+
+code::
+a = Array.series(8, -4);
+b = a.maxdb(6.0);
+a.plot("a");
+b.plot("a.maxdb(6.0)");
+::
+
+
+METHOD:: mindb
+
+Bilateral minimum, in terms of dB. See also, link::#-clip2::.
+
+code::
+a = Array.series(8, -4);
+b = a.mindb(6.0);
+a.plot("a");
+b.plot("a.mindb(6.0)");
+::
+
+
+METHOD:: clipdb2
+
+Bilateral clipping, in terms of dB. Clips receiver to +/- aNumber.
+
+code::
+a = Array.series(8, -4);
+b = a.clipdb2(6.0);
+a.plot("a");
+b.plot("a.clipdb2(6.0)");
+::
+
+
+METHOD:: clipdb
+
+Bilateral minimum, in terms of dB. If the receiver is less than lo then answer lo, else if the receiver is greater than hi then answer hi, else answer the receiver.
+
+code::
+a = Array.series(8, -4);
+b = a.clipdb(0.0, 9.0);
+a.plot("a");
+b.plot("a.clipdb(0.0, 9.0)");
+::
+
+
+subsection:: mapping
+
+METHOD:: kFreq
+
+Convert DFT coefficient number to frequency.
+
+argument:: size
+
+DFT size
+
+argument:: sampleRate
+
+signal sample rate. Defaults to normalized frequency.
+
+
+
+METHOD:: freqK
+
+Convert frequency to DFT coefficient number.
+
+argument:: size
+
+DFT size
+
+argument:: sampleRate
+
+signal sample rate. Defaults to normalized frequency.
