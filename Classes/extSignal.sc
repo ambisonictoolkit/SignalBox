@@ -103,6 +103,9 @@
 		^this.scale(this.peakMagnitude(oversample).reciprocal)
 	}
 
+	/* DC */
+	discardDC { ^this.offset(this.mean.neg) }
+
 	/* rotation & phase */
 
 	// NOTE: match Hilbert phase rotation

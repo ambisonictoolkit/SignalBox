@@ -165,6 +165,20 @@ real2 = real1.wrapExtend(size.nextPowerOfTwo);
 )
 ::
 
+
+METHOD:: discardDC
+
+Remove the DC component the Signal strong::in place::.
+
+code::
+(
+Signal.newClear(8).cosineFill2([[1, 1]]).plot("Cosine Only");  // prototype
+Signal.newClear(8).cosineFill2([[0, 1], [1, 1]]).plot("Cosine + DC");  // with DC
+Signal.newClear(8).cosineFill2([[0, 1], [1, 1]]).discardDC.plot("Cosine + DC, DC removed");  // with DC
+)
+::
+
+
 subsection:: Unary Messages
 
 METHOD:: flip
