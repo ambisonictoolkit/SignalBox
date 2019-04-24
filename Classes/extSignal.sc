@@ -121,19 +121,19 @@
 				(this.size.isPowerOfTwo).if({  // fft
 					var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
 					var complex = this.rfft(cosTable);
-					var rotatedComplex = complex.rotate(phase);
-					rotatedComplex.real.irfft(rotatedComplex.imag, cosTable)
+					var rotatedComplex = complex.rotate(phase);  // converts to Array
+					rotatedComplex.real.as(Signal).irfft(rotatedComplex.imag.as(Signal), cosTable)
 				}, {  // dft
 					var complex = this.dft(Signal.newClear(this.size));
 					var rotatedComplex;
-					var halfsize = (this.size/2).floor;
+					var halfsize = (this.size/2).floor.asInteger;
 
 					rotatedComplex = this.size.even.if({
-						complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))
+						complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))    // converts to Array
 					}, {
-						complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))
+						complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))    // converts to Array
 					});
-					rotatedComplex.real.idft(rotatedComplex.imag).real
+					rotatedComplex.real.as(Signal).idft(rotatedComplex.imag.as(Signal)).real
 				})
 			})
 		)
