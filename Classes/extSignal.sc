@@ -121,18 +121,31 @@
 				(this.size.isPowerOfTwo).if({  // fft
 					var cosTable = Signal.rfftCosTable(this.size / 2 + 1);
 					var complex = this.rfft(cosTable);
-					var rotatedComplex = complex.rotate(phase);  // converts to Array
+					var rotatedComplex;
+					var start = 0, step, phaseOffset;
+
+					step = phase;
+					phaseOffset = Array.series(this.size / 2 + 1, start, step);  // positive freqs only
+
+					rotatedComplex = complex.rotate(phaseOffset);  // converts to Array
 					rotatedComplex.real.as(Signal).irfft(rotatedComplex.imag.as(Signal), cosTable)
 				}, {  // dft
 					var complex = this.dft(Signal.newClear(this.size));
 					var rotatedComplex;
-					var halfsize = (this.size/2).floor.asInteger;
+					var start, step, phaseOffset;
 
-					rotatedComplex = this.size.even.if({
-						complex.rotate(Array.fill(halfsize, { phase }) ++ Array.fill(halfsize, { phase.neg }))    // converts to Array
+					step = phase;
+
+					this.size.even.if({
+						start = step.neg * this.size / 2;  // start with negative freqs
+						phaseOffset = Array.series(this.size, start, step);
+						phaseOffset = phaseOffset.rotate((this.size / 2).asInteger)  // rotate
 					}, {
-						complex.rotate(Array.fill(halfsize + 1, { phase }) ++ Array.fill(halfsize, { phase.neg }))    // converts to Array
+						start = step.neg * (this.size-1) / 2;  // start with negative freqs
+						phaseOffset = Array.series(this.size, start, step);
+						phaseOffset = phaseOffset.rotate(((this.size+1) / 2).asInteger)  // rotate
 					});
+					rotatedComplex = complex.rotate(phaseOffset);    // converts to Array
 					rotatedComplex.real.as(Signal).idft(rotatedComplex.imag.as(Signal)).real
 				})
 			})
