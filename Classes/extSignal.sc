@@ -76,6 +76,99 @@
 		});
 	}
 
+	/* read waveform */
+
+	*readWave { arg size, path, frame = 0, channel = 0, freq = 440.0, alpha = 3, winScale = 1;
+		var soundFile, soundFrames;
+		var startFrame, endFrame;
+		var k, winSize, perSize, readSize, overDubIndex;
+		var soundData, window, foldedWin, signal, foldedSig;
+
+		if(File.exists(path), {
+
+			// open...
+			soundFile = SoundFile.new(path);
+			soundFile.openRead;
+
+			// calcs...
+			perSize = (soundFile.sampleRate / freq).asInteger;  // period size
+			k = (1 + alpha.squared).sqrt;  // folding frequency
+			winSize = (2.pow(winScale) * k * perSize).asInteger;  // window size
+			startFrame = (frame - (winSize/2)).asInteger;  // window is centered
+			endFrame = startFrame + winSize;  // window is centered
+			soundFrames = (soundFile.numFrames / soundFile.numChannels).asInteger;
+
+			case
+			// within bounds
+			{ (startFrame >= 0) && (endFrame <= soundFrames) } {
+				readSize = winSize;
+				overDubIndex = 0;
+			}
+			// before soundFile start
+			{ (startFrame < 0) && (endFrame <= soundFrames) } {
+				readSize = startFrame + winSize;  // negagive start frame
+				overDubIndex = startFrame.neg;
+			}
+			// after soundFile end
+			{ (startFrame >= 0) && (endFrame > soundFrames) } {
+				readSize = startFrame + winSize - soundFrames;
+				overDubIndex = 0;
+			}
+			// before AND after soundFile end
+			{ (startFrame < 0) && (endFrame > soundFrames) } {
+				readSize = soundFrames;  // negagive start frame
+				overDubIndex = startFrame.neg;
+			};
+
+			// read
+			soundData = FloatArray.newClear(readSize * soundFile.numChannels);  // interleaved
+			(startFrame >= 0).if({
+				soundFile.seek(startFrame).readData(soundData);
+				}, {
+				soundFile.seek(0).readData(soundData);
+			});
+
+			// multi-channel??
+			(soundFile.numChannels > 1).if({
+				soundData = soundData.clump(soundFile.numChannels).flop.at(channel)
+			});
+
+			// window & folded window
+			window = Signal.kaiserWindow(winSize, a: alpha);
+			foldedWin = Signal.newClear(perSize);
+			window.clump(perSize).do({ arg item;
+				foldedWin.overDub(item.as(Signal))
+			});
+
+			// signal & folded signal
+			signal = window * Signal.newClear(winSize).overDub(soundData.as(Signal), overDubIndex);
+			foldedSig = Signal.newClear(perSize);
+			signal.clump(perSize).do({ arg item;
+				foldedSig.overDub(item.as(Signal))
+			});
+			foldedSig = foldedSig * foldedWin.reciprocal;  // normalize the window!
+
+			// normalize phase
+			foldedSig = foldedSig.rotateWave(foldedSig.rgoertzel(1).phase.neg);
+
+			// resample to size...
+			((size == nil) || (size == perSize)).not.if({
+				"Waveform resizing not yet implemented!".warn;
+			});
+
+			// remove dc... & normalize scale
+			foldedSig.discardDC;
+			foldedSig.normalize;
+
+			// ... close
+			soundFile.close;
+
+			^foldedSig;
+		}, {
+			Error("No sound file at:" + path).throw;
+		})
+	}
+
 	/* magnitude & envelope */
 
 	rms { ^this.squared.mean.sqrt }
