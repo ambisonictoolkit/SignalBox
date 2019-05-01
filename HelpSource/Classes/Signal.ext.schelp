@@ -47,6 +47,96 @@ argument:: size
 the number of samples in the Signal.
 
 
+METHOD:: readWave
+
+Read a periodic waveform from a soundfile.
+
+code::
+(
+var path, soundFile, size, skipTime, freq;
+path = Platform.resourceDir +/+ "sounds/a11wlk01-44_1.aiff";
+skipTime = 1.2589;
+freq = 132.5;
+size = 2048;
+
+soundFile = SoundFile.new(path);
+soundFile.openRead;
+
+x = Signal.readWave(size, path, (soundFile.sampleRate * skipTime).asInteger, freq: freq);
+x.plot("waveform: %".format(path), minval: -1.0, maxval: 1.0);
+
+soundFile.close;
+)
+::
+
+argument:: size
+the number of samples. If size is code::nil::, return a waveform of the original number of samples at the soundfile sample rate.
+
+argument:: path
+a String representing the path of the soundfile to be read.
+
+argument:: frame
+center frame of the soundfile about which to read. I.e., the synthesis window is centered on this frame. The default is 0, which is the beginning of the file.
+
+argument:: channel
+soundfile channel to read. The default is 0, the first channel.
+
+argument:: freq
+analysis frequency of the waveform, in Hz. The default is 440 Hz.
+
+argument:: alpha
+link::Classes/Signal#*kaiserWindow#Kaiser:: window alpha. The default is 3.
+
+argument:: winScale
+power of two scaling coefficient for the window size. The default is 1.
+
+
+DISCUSSION::
+
+strong::freq::
+
+Successful synthesis of a periodic waveform from a soundfile depends largely on closely estimating the frequency of the waveform. The emphasis::folding frequency:: of the link::Classes/Signal#*kaiserWindow#Kaiser:: synthesis window is mapped to this analysis frequency.
+
+strong::alpha::
+
+Time domain smoothing is directly specified by the link::Classes/Signal#*kaiserWindow#Kaiser:: window alpha. Choosing code::alpha = 0; winScale = 0:: specifies a rectangular window, and allows us to view an unsmoothed period of the source waveform. Higher values of alpha mean more time domain smoothing.
+
+code::
+(
+var path, soundFile, size, skipTime, freq;
+var alpha = 0, winScale = 0;
+path = Platform.resourceDir +/+ "sounds/a11wlk01-44_1.aiff";
+skipTime = 1.2589;
+freq = 132.5;
+size = 2048;
+
+soundFile = SoundFile.new(path);
+soundFile.openRead;
+
+x = Signal.readWave(size, path, (soundFile.sampleRate * skipTime).asInteger, freq: freq, alpha: alpha, winScale: winScale);
+x.plot("unsmoothed waveform: %".format(path), minval: -1.0, maxval: 1.0);
+
+soundFile.close;
+)
+::
+
+NOTE:: An unsmoothed waveform will usually result in unintended distortion artifacts when used as a link::Classes/Wavetable::.::
+
+strong::winScale::
+
+The window scale argument scales the link::Classes/Signal#*kaiserWindow#Kaiser:: window emphasis::folding frequency:: with respect to the period of the waveform, like this:
+
+table::
+    ## strong::winScale:: || strong::waveform periods::
+    ## 1 || 2
+    ## 0 || 1
+    ## -1 || 0.5
+::
+
+The default, code::winScale = 1::, is optimimal in the sense that frequency domain artifacts are relected furthest from the harmonics of the periodic waveform of interest, without excessive oversampling.
+
+
+
 subsection:: Analytic & Hilbert
 
 
