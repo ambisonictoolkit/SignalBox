@@ -132,6 +132,8 @@
 			(soundFile.numChannels > 1).if({
 				soundData = soundData.clump(soundFile.numChannels).flop.at(channel)
 			});
+			// ... close
+			soundFile.close;
 
 			// window & folded window
 			window = Signal.kaiserWindow(winSize, a: alpha);
@@ -152,16 +154,13 @@
 			foldedSig = foldedSig.rotateWave(foldedSig.rgoertzel(1).phase.neg);
 
 			// resample to size...
-			((size == nil) || (size == perSize)).not.if({
-				"Waveform resizing not yet implemented!".warn;
+			(size == nil).not.if({
+				foldedSig = foldedSig.resize(size);
 			});
 
 			// remove dc... & normalize scale
 			foldedSig.discardDC;
 			foldedSig.normalize;
-
-			// ... close
-			soundFile.close;
 
 			^foldedSig;
 		}, {
