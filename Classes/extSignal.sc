@@ -337,9 +337,9 @@
 
 	/* frequency domain resampling */
 
-	prInterpolate { arg size;
+	prInterpolate { arg newSize;
 		var complex, real, imag;
-		var scale = size / this.size;
+		var scale = newSize / this.size;
 
 		// source - real spectrum
 		case
@@ -362,27 +362,80 @@
 		};
 
 		// target
-		^size.isPowerOfTwo.if({  // irfft
-			real = Signal.newClear(size/2 + 1).overDub(complex.real);
-			imag = Signal.newClear(size/2 + 1).overDub(complex.imag);
-			scale * real.irfft(imag, Signal.rfftCosTable(size/2 + 1))
+		^newSize.isPowerOfTwo.if({  // irfft
+			real = Signal.newClear(newSize/2 + 1).overWrite(complex.real);
+			imag = Signal.newClear(newSize/2 + 1).overWrite(complex.imag);
+			scale * real.irfft(imag, Signal.rfftCosTable(newSize/2 + 1))
 		}, {  // idft
 			// full spectrum
-			real = Signal.newClear(size).overDub((complex.real.flip.drop(1) ++ complex.real).as(Signal));
+			real = Signal.newClear(newSize).overWrite((complex.real.flip.drop(1) ++ complex.real).as(Signal));
 			real = real.rotate(1 - complex.real.size);
-			imag = Signal.newClear(size).overDub((complex.imag.neg.flip.drop(1) ++ complex.imag).as(Signal));
+			imag = Signal.newClear(newSize).overWrite((complex.imag.neg.flip.drop(1) ++ complex.imag).as(Signal));
 			imag = imag.rotate(1 - complex.imag.size);
 			scale * real.idft(imag).real
 		})
 	}
 
-	// prDecimate {
-	//
-	// }
+	prDecimate { arg newSize;
+		var complex, real, imag;
+		var scale = newSize / this.size;
+		var halfsize;
 
-	// resize {
-	//
-	// }
+		// source - real spectrum
+		case
+		{ this.size.isPowerOfTwo } {  // rfft
+			complex = this.rfft(Signal.rfftCosTable(this.size/2 + 1));
+		}
+		{ this.size.even } {  // zoomDft
+			complex = this.rdftZoom(this.size/2 + 1, 0, this.size/2);
+		}
+		{ this.size.odd } {  // zoomDft
+			complex = this.rdftZoom((this.size + 1)/2, 0, (this.size - 1)/2)
+		};
+
+		// target
+		^newSize.isPowerOfTwo.if({  // irfft
+			halfsize = (newSize/2).asInteger;
+
+			real = Signal.newClear(halfsize + 1).overWrite(complex.real);
+			imag = Signal.newClear(halfsize + 1).overWrite(complex.imag);
+
+			// rescale Nyquist
+			real.put(halfsize, 2 * real.at(halfsize));
+			imag.put(halfsize, 2 * imag.at(halfsize));
+
+			scale * real.irfft(imag, Signal.rfftCosTable(halfsize + 1))
+		}, {  // idft
+			// real spectrum
+			real = complex.real;
+			imag = complex.imag;
+
+			// full spectrum
+			newSize.even.if({
+				halfsize = (newSize/2).asInteger;
+
+				// rescale Nyquist
+				real.put(halfsize, 2 * real.at(halfsize));
+				imag.put(halfsize, 2 * imag.at(halfsize));
+
+				real = (real.copySeries(0, last: halfsize) ++ real.copySeries(halfsize - 1, last: 1)).as(Signal);
+				imag = (imag.copySeries(0, last: halfsize) ++ imag.copySeries(halfsize - 1, last: 1).neg).as(Signal);
+			}, {
+				halfsize = ((newSize - 1)/2).asInteger;
+
+				real = (real.copySeries(0, last: halfsize) ++ real.copySeries(halfsize, last: 1)).as(Signal);
+				imag = (imag.copySeries(0, last: halfsize) ++ imag.copySeries(halfsize, last: 1).neg).as(Signal);
+			});
+			scale * real.idft(imag).real
+		})
+	}
+
+	resize { arg newSize;
+		^case
+		{ this.size == newSize } { this }
+		{ this.size < newSize } { this.prInterpolate(newSize) }
+		{ this.size > newSize } { this.prDecimate(newSize) }
+	}
 
 	/* real fft */
 
