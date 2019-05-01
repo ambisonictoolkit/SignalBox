@@ -251,7 +251,31 @@ real2 = real1.wrapExtend(size.nextPowerOfTwo);
 
 [real1.zeroPad(size.nextPowerOfTwo), real2 ].flop.flat
     .plot("wrapExtend", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
 
+
+METHOD:: resize
+
+Returns a new Signal resampled in the frequency domain to a new size. The receiver is unchanged.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var size = 600;
+var real1, real2;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real1 = Signal.newClear(size).cosineFill2(list);
+real2 = real1.resize(real1.size.nextPowerOfTwo);
+
+[real1.zeroPad(size.nextPowerOfTwo), real2 ].flop.flat
+    .plot("resize", Rect(0, 0, 512 + 8, 500), numChannels: 2);
 )
 ::
 
@@ -1095,3 +1119,6 @@ table::
     ## code::'dir':: || evaluate directly
     ## code::'czt':: || Chirp z-Transform
 ::
+
+
+PRIVATE:: prInterpolate, prDecimate
