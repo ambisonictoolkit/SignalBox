@@ -170,7 +170,7 @@
 
 	/* read & write */
 
-	write { arg path;
+	writeFile { arg path;
 		var file;
 		file = File.new(path, "wb");
 		if (file.notNil, {

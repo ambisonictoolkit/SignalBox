@@ -292,7 +292,7 @@ Signal.newClear(8).cosineFill2([[0, 1], [1, 1]]).discardDC.plot("Cosine + DC, DC
 )
 ::
 
-METHOD:: write
+METHOD:: writeFile
 
 Writes the entire Signal to a file, where every chunk of four bytes is a 32-bit floating point sample.
 
@@ -312,13 +312,13 @@ list = [harms, amps, phases].lace.clump(3);
 real1 = Signal.newClear(size).cosineFill2(list);
 
 // write it
-real1.write(path);
+real1.writeFile(path);
 
 // read it
 real2 = Signal.readNew(File.new(path, "r"));
 
 [real1, real2 ].flop.flat
-    .plot("write", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+    .plot("writeFile", Rect(0, 0, 512 + 8, 500), numChannels: 2);
 )
 ::
 
