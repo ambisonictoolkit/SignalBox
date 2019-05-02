@@ -179,7 +179,7 @@
 		})
 	}
 
-	writeSoundFile { arg path, headerFormat = "WAV", sampleFormat = "float", sampleRate = 44100;
+	write { arg path, headerFormat = "WAV", sampleFormat = "float", sampleRate = 44100;
 		var soundFile = SoundFile.new
 		.headerFormat_(headerFormat)
 		.sampleFormat_(sampleFormat)

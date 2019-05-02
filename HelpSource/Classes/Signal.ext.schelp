@@ -323,7 +323,7 @@ real2 = Signal.readNew(File.new(path, "r"));
 ::
 
 
-METHOD:: writeSoundFile
+METHOD:: write
 
 Writes the entire Signal to a soundfile.
 
@@ -343,7 +343,7 @@ list = [harms, amps, phases].lace.clump(3);
 real1 = Signal.newClear(size).cosineFill2(list);
 
 // write it
-real1.writeSoundFile(path);
+real1.write(path);
 
 // read it
 soundFile = SoundFile.openRead(path);
@@ -352,7 +352,7 @@ soundFile.readData(real2);
 real2 = real2.as(Signal);
 
 [real1, real2 ].flop.flat
-    .plot("writeSoundFile", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+    .plot("write", Rect(0, 0, 512 + 8, 500), numChannels: 2);
 )
 ::
 
