@@ -78,7 +78,7 @@
 
 	/* read waveform */
 
-	*readWave { arg size, path, frame = 0, channel = 0, freq = 440.0, alpha = 3, winScale = 1;
+	*readWave { arg path, size, frame = 0, channel = 0, freq = 440.0, alpha = 3, winScale = 1;
 		var soundFile, soundFrames;
 		var startFrame, endFrame;
 		var k, winSize, perSize, readSize, overDubIndex;
