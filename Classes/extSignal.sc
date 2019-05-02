@@ -168,6 +168,30 @@
 		})
 	}
 
+	/* read & write */
+
+	write { arg path;
+		var file;
+		file = File.new(path, "wb");
+		if (file.notNil, {
+			file.write(this);
+			file.close
+		})
+	}
+
+	writeSoundFile { arg path, headerFormat = "WAV", sampleFormat = "float", sampleRate = 44100;
+		var soundFile = SoundFile.new
+		.headerFormat_(headerFormat)
+		.sampleFormat_(sampleFormat)
+		.sampleRate_(sampleRate);
+
+		soundFile.openWrite(path);
+		soundFile.writeData(this);
+		soundFile.close
+	}
+
+
+
 	/* magnitude & envelope */
 
 	rms { ^this.squared.mean.sqrt }

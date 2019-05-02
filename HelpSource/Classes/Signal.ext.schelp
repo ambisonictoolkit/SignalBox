@@ -292,6 +292,87 @@ Signal.newClear(8).cosineFill2([[0, 1], [1, 1]]).discardDC.plot("Cosine + DC, DC
 )
 ::
 
+METHOD:: write
+
+Writes the entire Signal to a file, where every chunk of four bytes is a 32-bit floating point sample.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var size = 600;
+var real1, real2;
+var path = "~/Desktop/testBinarySignal".standardizePath;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real1 = Signal.newClear(size).cosineFill2(list);
+
+// write it
+real1.write(path);
+
+// read it
+real2 = Signal.readNew(File.new(path, "r"));
+
+[real1, real2 ].flop.flat
+    .plot("write", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
+
+
+METHOD:: writeSoundFile
+
+Writes the entire Signal to a soundfile.
+
+code::
+(
+var numharms, harms, amps, phases, list;
+var size = 600;
+var real1, real2, soundFile;
+var path = "~/Desktop/testSoundFile.wav".standardizePath;
+
+numharms = 6;
+harms = Array.rand(numharms, 1, 16);
+amps = Array.rand(numharms, 0, -12).dbamp;
+phases = Array.rand(numharms, 0, 2pi);
+
+list = [harms, amps, phases].lace.clump(3);
+real1 = Signal.newClear(size).cosineFill2(list);
+
+// write it
+real1.writeSoundFile(path);
+
+// read it
+soundFile = SoundFile.openRead(path);
+real2 = FloatArray.newClear(soundFile.numFrames);
+soundFile.readData(real2);
+real2 = real2.as(Signal);
+
+[real1, real2 ].flop.flat
+    .plot("writeSoundFile", Rect(0, 0, 512 + 8, 500), numChannels: 2);
+)
+::
+
+argument:: path
+
+a String representing the path of the soundfile to be read.
+
+argument:: headerFormat
+
+a String for the soundfile format. Valid strings are listed at link::Classes/SoundFile#-headerFormat::. If not given, the default code::"AIFF":: is used.
+
+argument:: sampleFormat
+
+a String for the sample format. Valid strings are listed at link::Classes/SoundFile#-sampleFormat::. If not given, the default code::"float":: is used.
+
+argument:: sampleRate
+
+an Integer sample rate (44100 by default).
+
+
 
 subsection:: Unary Messages
 
