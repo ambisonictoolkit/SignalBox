@@ -73,11 +73,11 @@ the number of samples. If size is code::nil::, defaults to the soundfile's numbe
 
 argument:: startFrame
 
-The first frame of the soundfile to read. The default is 0, which is the beginning of the file. May be a negative number, which indicates the number of zeros to fill before reading the soundfile.
+the first frame of the soundfile to read. The default is 0, which is the beginning of the file. May be a negative number, which indicates the number of zeros to fill before reading the soundfile.
 
 argument:: channel
 
-channel number to be read from the soundfile. Indices start from zero.
+soundfile channel to read. The default is 0, the first channel.
 
 
 METHOD:: readWave
