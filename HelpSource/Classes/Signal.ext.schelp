@@ -47,6 +47,39 @@ argument:: size
 the number of samples in the Signal.
 
 
+METHOD:: read
+
+Read a soundfile.
+
+code::
+(
+var path, size, startFrame;
+path = Platform.resourceDir +/+ "sounds/SinedPink.aiff";  // size = 501
+size = 2048;
+startFrame = -250;
+
+x = Signal.read(path, size, startFrame);
+x.plot("sound: %".format(path), minval: -1.0, maxval: 1.0);
+)
+::
+
+argument:: path
+
+a String representing the path of the soundfile to be read.
+
+argument:: size
+
+the number of samples. If size is code::nil::, defaults to the soundfile's number of frames.
+
+argument:: startFrame
+
+The first frame of the soundfile to read. The default is 0, which is the beginning of the file. May be a negative number, which indicates the number of zeros to fill before reading the soundfile.
+
+argument:: channel
+
+channel number to be read from the soundfile. Indices start from zero.
+
+
 METHOD:: readWave
 
 Read a periodic waveform from a soundfile.
@@ -358,7 +391,7 @@ real2 = real2.as(Signal);
 
 argument:: path
 
-a String representing the path of the soundfile to be read.
+a String representing the path of the soundfile to be written.
 
 argument:: headerFormat
 

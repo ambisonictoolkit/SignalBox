@@ -76,7 +76,78 @@
 		});
 	}
 
-	/* read waveform */
+	/* read & write */
+
+	*read { arg path, size, startFrame = 0, channel = 0;
+		var soundFile, soundFrames, soundEndFrame, endFrame, winSize, readSize, soundData;
+		var overWriteIndex;
+
+		if(File.exists(path), {
+
+			// open...
+			soundFile = SoundFile.new(path);
+			soundFile.openRead;
+
+			// calcs...
+			soundFrames = (soundFile.numFrames / soundFile.numChannels).asInteger;
+			soundEndFrame = soundFrames - 1;
+			winSize = (size == nil).if({  // returned window size
+				soundFrames  // complete soundfile
+			}, {
+				size
+			});
+			endFrame = startFrame + (winSize - 1);
+
+			case
+			// within bounds
+			{ (startFrame >= 0) && (endFrame <= soundEndFrame) } {
+				readSize = winSize;
+				overWriteIndex = 0;
+			}
+			// before soundfile start
+			{ (startFrame < 0) && (endFrame <= soundEndFrame) } {
+				readSize = startFrame + winSize;  // negative start frame
+				overWriteIndex = startFrame.neg;
+			}
+			// after soundfile end
+			{ (startFrame >= 0) && (endFrame > soundEndFrame) } {
+				readSize = soundEndFrame - startFrame + 1;
+				overWriteIndex = 0;
+			}
+			// before AND after soundFile end
+			{ (startFrame < 0) && (endFrame > soundEndFrame) } {
+				readSize = soundFrames;  // negagive start frame
+				overWriteIndex = startFrame.neg;
+			};
+
+			// read
+			soundData = FloatArray.newClear(readSize * soundFile.numChannels);  // interleaved
+			(startFrame >= 0).if({
+				soundFile.seek(startFrame).readData(soundData);
+				}, {
+				soundFile.seek(0).readData(soundData);
+			});
+
+			// multi-channel??
+			(soundFile.numChannels > 1).if({
+				soundData = soundData.clump(soundFile.numChannels).flop.at(channel)
+			});
+			// ... close
+			soundFile.close;
+
+			// recast as Signal
+			soundData = soundData.as(Signal);
+
+			// pad with zeros, if need be...
+			((startFrame >= 0) && (endFrame <= soundEndFrame)).not.if({
+				soundData = Signal.newClear(winSize).overWrite(soundData, overWriteIndex)
+			});
+
+			^soundData
+		}, {
+			Error("No sound file at:" + path).throw;
+		})
+	}
 
 	*readWave { arg path, size, frame = 0, channel = 0, freq = 440.0, alpha = 3, winScale = 1;
 		var soundFile, soundFrames;
@@ -167,8 +238,6 @@
 			Error("No sound file at:" + path).throw;
 		})
 	}
-
-	/* read & write */
 
 	writeFile { arg path;
 		var file;
