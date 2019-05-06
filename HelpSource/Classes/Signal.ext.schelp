@@ -217,7 +217,7 @@ argument:: path
 a String representing the path of the soundfile to be read.
 
 argument:: size
-the number of samples. If size is code::nil::, return a waveform of the original number of samples at the soundfile sample rate.
+the number of samples. If size is code::nil::, return a wave packet of the original number of samples at the soundfile sample rate.
 
 argument:: frame
 center frame of the soundfile about which to read. I.e., the synthesis window is centered on this frame. The default is 0, which is the beginning of the file.
@@ -374,7 +374,7 @@ a rank 2 collection containing harmonic numbers, amplitudes and phases.
 
 METHOD:: wavePacket
 
-Given a periodic waveform, returns a Hann enveloped Signal for wave packet synthesis. The receiver is unchanged.
+Given a periodic waveform, returns a Hann enveloped wave packet. The receiver is unchanged.
 
 code::
 (
