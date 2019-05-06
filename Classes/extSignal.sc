@@ -161,7 +161,7 @@
 			soundFile.openRead;
 
 			// calcs...
-			perSize = (soundFile.sampleRate / freq).asInteger;  // period size
+			perSize = (soundFile.sampleRate / freq).round.asInteger;  // period size
 			k = (1 + alpha.squared).sqrt;  // folding frequency
 			winSize = (2.pow(winScale) * k * perSize).asInteger;  // window size
 			startFrame = (frame - (winSize/2)).asInteger;  // window is centered
