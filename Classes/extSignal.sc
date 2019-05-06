@@ -76,6 +76,39 @@
 		});
 	}
 
+	/* wave packet */
+	*packetFill { arg size, amplitudes, phases;
+		^Signal.newClear(size).packetFill(amplitudes, phases).normalize
+	}
+
+	packetFill { arg amplitudes, phases;
+		this.fill(0.0);
+		if (phases.isNil, { phases = #[0]; });
+		amplitudes.do({ arg amp, i; this.addCosine(2*(i+1), amp, phases @@ i) });
+		this.overWrite(Signal.hannWindow(this.size) * this)
+	}
+
+	packetFill2 { arg list;
+		this.fill(0.0);
+		list.do({ arg item, i;
+			var harm, amp, phase;
+			# harm, amp, phase = item;
+			this.addCosine(2*harm, amp ? 1.0, phase ? 0.0);
+		});
+		this.overWrite(Signal.hannWindow(this.size) * this)
+	}
+
+	wavePacket {
+		var packet = this.size.even.if({
+			var halfsize = (this.size/2).asInteger;
+			this.resize(halfsize).wrapExtend(this.size)
+		}, {
+			var doublesize = (2 * this.size).asInteger;
+			this.wrapExtend(doublesize).resize(this.size)
+		});
+		^Signal.hannWindow(this.size) * packet
+	}
+
 	/* read & write */
 
 	*read { arg path, size, startFrame = 0, channel = 0;
@@ -199,6 +232,21 @@
 			^foldedSig;
 		}, {
 			Error("No sound file at:" + path).throw;
+		})
+	}
+
+	*readPacket { arg path, size, frame = 0, channel = 0, freq = 440.0, alpha = 3, winScale = 1;
+		var wave, doubleWave;
+
+		// read unscaled waveform
+		wave = Signal.readWave(path, nil, frame, channel, freq, alpha, winScale);
+		doubleWave = wave.wrapExtend(2 * wave.size);
+
+		// packet
+		^(size == nil).if({
+			Signal.hannWindow(doubleWave.size) * doubleWave
+		}, {
+			Signal.hannWindow(size) * doubleWave.resize(size)
 		})
 	}
 
