@@ -4,11 +4,9 @@
         \author: "Joseph Anderson",
      \copyright: "Joseph Anderson 2019",
        \license: "GPL",
-       \version: "0.0.0",
+       \version: "0.1.0",
         \schelp: "The SignalBox Toolset",
            \url: "https://github.com/ambisonictoolkit/SignalBox",
-  \dependencies: [
-  
-                ],
+  \dependencies: [ "ExtraWindows" ],
          \since: "2019",
 )
