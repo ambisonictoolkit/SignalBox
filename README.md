@@ -134,21 +134,14 @@ Known issues are logged at
 List of Changes
 ---------------
 
+Version 0.1.0
 
-
-Version 0.0.0
-
-* Development.
-
-
-&nbsp;
+* First Public Release.
 
 &nbsp;
 
 Credits
 =======
-
-&nbsp;
 
 Joseph Anderson 2019.
 
@@ -160,9 +153,11 @@ The development of SignalBox for SuperCollider3 is
 supported by
 [DXARTS, Center for Digital Arts and Experimental Media](https://dxarts.washington.edu/).
 
+&nbsp;
+
 
 Contributors
 ------------
 
-Version 0.0.0
+Version 0.1.0
 *  Joseph Anderson (@joslloand)
