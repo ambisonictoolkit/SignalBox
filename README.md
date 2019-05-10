@@ -142,6 +142,7 @@ Version 0.1.1
 *  Refactoring:
 
 *  Documentation Updates:
+    * Added algorithm citations
 
 *  Issue fixes:
 

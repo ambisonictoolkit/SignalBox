@@ -393,7 +393,8 @@ Signal.newClear(1000).cosineFill2(list).wavePacket.plot;
 
 METHOD:: cola
 
-Given a superposition density window, returns a constant-overlap-add (COLA) window. The receiver is unchanged.
+Given a superposition density window, returns a constant-overlap-add (COLA) window. FOOTNOTE::Borss, C, and R Martin. “On the Construction of Window Functions with Constant-Overlap-Add Constraint for Arbitrary Window Shifts.” 2012 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2012, pp. 337–340.
+:: The receiver is unchanged.
 
 code::
 (
@@ -578,7 +579,7 @@ subsection:: Unary Messages
 
 METHOD:: flip
 
-The flip operator.
+The flip operator. FOOTNOTE::Smith, J.O. "Flip Operator", in Mathematics of the Discrete Fourier Transform (DFT) with Audio Applications, Second Edition, https://www.dsprelated.com/freebooks/mdft/Flip_Operator.html, online book, 2007 edition, accessed 2019-05-19.::
 
 code::
 (
@@ -638,7 +639,7 @@ subsection:: Analytic & Complex
 
 METHOD:: analytic
 
-Hilbert Transform: Return a complex analytic signal from a real signal.
+Hilbert Transform: Return a complex analytic signal from a real signal. FOOTNOTE::Marple, L. “Computing the Discrete-Time ‘Analytic’ Signal via FFT.” IEEE Transactions on Signal Processing, vol. 47, no. 9, 1999, pp. 2600–2603.::
 
 code::
 (
@@ -749,7 +750,7 @@ a Boolean indicating whether the window is symmetric or periodic. Default is fal
 
 METHOD:: minimumPhase
 
-Return a minimum phase kernel, preserving the magnitude, strong::in place::.
+Return a minimum phase kernel, preserving the magnitude, strong::in place::. FOOTNOTE::Damera-Venkata, N, and B.L Evans. “Optimal Design of Real and Complex Minimum Phase Digital FIR Filters.” 1999 IEEE International Conference on Acoustics, Speech, and Signal Processing. Proceedings. ICASSP99 (Cat. No.99CH36258), vol. 3, 1999, pp. 1145–1148 vol.3.::
 
 code::
 (
@@ -781,7 +782,7 @@ time oversampling scale factor. May be a float or an integer. Reduces time alias
 
 METHOD:: even
 
-Return the even part of a signal.
+Return the even part of a signal. FOOTNOTE::Smith, J.O. "Even and Odd Functions", in Mathematics of the Discrete Fourier Transform (DFT) with Audio Applications, Second Edition, https://www.dsprelated.com/freebooks/mdft/Even_Odd_Functions.html, online book, 2007 edition, accessed 2019-05-19.::
 
 code::
 (
@@ -895,7 +896,7 @@ subsection:: Cepstrum
 
 METHOD:: rceps
 
-Return the real part of the cepstrum of a real signal.
+Return the real part of the cepstrum of a real signal. FOOTNOTE::Childers, D.G, et al. “The Cepstrum: A Guide to Processing.” Proceedings of the IEEE, vol. 65, no. 10, 1977, pp. 1428–1443.::
 
 code::
 (
@@ -946,7 +947,7 @@ subsection:: Chirp z-Transform
 
 METHOD:: czt
 
-Perform a Chirp z-Transform on a real and imaginary signal.
+Perform a Chirp z-Transform on a real and imaginary signal. FOOTNOTE::Rabiner, Lawrence R, et al. “The Chirp z-Transform Algorithm and Its Application.” The Bell System Technical Journal, vol. 48, no. 5, 1969, pp. 1249–1292.::
 
 code::
 (
@@ -1043,7 +1044,7 @@ complexRfft = complexFft.real.fftToRfft(complexFft.imag);
 
 METHOD:: rfft
 
-Perform a Real-FFT on a real signal. See also the class method link::#*rfftCosTable::.
+Perform a Real-FFT on a real signal. FOOTNOTE::Sorensen, H, et al. “Real-Valued Fast Fourier Transform Algorithms.” IEEE Transactions on Acoustics, Speech, and Signal Processing, vol. 35, no. 6, 1987, pp. 849–863.:: See also the class method link::#*rfftCosTable::.
 
 code::
 (
@@ -1323,7 +1324,7 @@ highest DFT coefficient. Not required to be an integer.
 
 METHOD:: goertzel
 
-Return individual terms of a DFT on a real and imaginary signal.
+Return individual terms of a DFT on a real and imaginary signal. FOOTNOTE::Sysel, Petr, and Pavel Rajmic. “Goertzel Algorithm Generalized to Non-Integer Multiples of Fundamental Frequency.” EURASIP Journal on Advances in Signal Processing, vol. 2012, no. 1, 2012, pp. 1–8.::
 
 NOTE::code::Signal.size:: is not restricted to a power of two.::
 
