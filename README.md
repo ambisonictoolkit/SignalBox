@@ -134,6 +134,18 @@ Known issues are logged at
 List of Changes
 ---------------
 
+Version 0.1.1
+
+*  New features:
+    *  constant-overlap-add (COLA) windowing
+
+*  Refactoring:
+
+*  Documentation Updates:
+
+*  Issue fixes:
+
+
 Version 0.1.0
 
 * First Public Release.

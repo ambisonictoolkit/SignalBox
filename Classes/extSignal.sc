@@ -1205,4 +1205,13 @@
 		)
 	}
 
+	/* constant overlap add window - Borss & Martin */
+
+	cola { arg size;
+		var hopsize = size - this.size + 1;
+		^this.scale(this.sum.reciprocal).convolve(
+			Signal.rectWindow(hopsize)
+		)
+	}
+
 }

@@ -391,6 +391,45 @@ Signal.newClear(1000).cosineFill2(list).wavePacket.plot;
 ::
 
 
+METHOD:: cola
+
+Given a superposition density window, returns a constant-overlap-add (COLA) window. The receiver is unchanged.
+
+code::
+(
+var size, hopsize, overlapsize;
+var colawindow;
+var ola;
+
+size = 1000;
+// hopsize = 1000;
+hopsize = 531;
+// hopsize = 500;
+// hopsize = 303;
+// hopsize = 106;
+
+// calc overlapsize
+overlapsize = size - hopsize;
+
+// generate cola window
+colawindow = Signal.hannWindow(overlapsize + 1).cola(size);
+
+"size: ".post; size.postln;
+"hopsize: ".post; hopsize.postln;
+"overlapsize: ".post; overlapsize.postln;
+
+// overlap add
+ola = Signal.newClear(size * 6);
+16.do({ arg i;
+    ola.overDub(colawindow, i * hopsize)
+});
+
+[ Signal.newClear(size * 6).deepCopy.overDub(colawindow),  ola].flop.flat
+    .plot("constant-overlap-add (COLA)", Rect(0, 0, 512 + 8, 500), numChannels: 2, minval: 0.0, maxval: 1.5);
+)
+::
+
+
 METHOD:: wrapExtend
 
 Returns a new Signal whose elements are repeated sequences of the receiver, up to size length. The receiver is unchanged.
