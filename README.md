@@ -139,13 +139,9 @@ Version 0.1.1
 *  New features:
     *  constant-overlap-add (COLA) windowing
 
-*  Refactoring:
-
 *  Documentation Updates:
     * Added algorithm citations
-
-*  Issue fixes:
-
+    * Correct Signal -readWave example
 
 Version 0.1.0
 
