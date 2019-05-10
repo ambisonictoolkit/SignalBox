@@ -168,7 +168,7 @@ size = 2048;
 soundFile = SoundFile.new(path);
 soundFile.openRead;
 
-x = Signal.readWave(size, path, (soundFile.sampleRate * skipTime).asInteger, freq: freq, alpha: alpha, winScale: winScale);
+x = Signal.readWave(path, size, (soundFile.sampleRate * skipTime).asInteger, freq: freq, alpha: alpha, winScale: winScale);
 x.plot("unsmoothed waveform: %".format(path), minval: -1.0, maxval: 1.0);
 
 soundFile.close;
