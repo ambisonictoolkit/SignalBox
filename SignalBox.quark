@@ -7,6 +7,6 @@
        \version: "0.1.0",
         \schelp: "The SignalBox Toolset",
            \url: "https://github.com/ambisonictoolkit/SignalBox",
-  \dependencies: [ "ExtraWindows" ],
+  \dependencies: [ "https://github.com/khoin/ExtraWindows" ],
          \since: "2019",
 )
