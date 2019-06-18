@@ -134,6 +134,11 @@ Known issues are logged at
 List of Changes
 ---------------
 
+Version 0.1.2
+
+*  New features:
+    *  log shelf filter coefficients
+
 Version 0.1.1
 
 *  New features:
