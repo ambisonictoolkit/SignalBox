@@ -1208,4 +1208,34 @@
 		)
 	}
 
+
+	/* log filters */
+
+	*logShelf { arg size, freq0, freq1, gainDC, gainNy, phase = \lin, sampleRate;
+		var mag, pha, complex;
+
+		// magnitude & phase
+		mag = Array.logShelf(size, freq0, freq1, gainDC, gainNy, sampleRate);
+		pha = (phase == \min).if({
+			mag.minimumPhase
+		}, {
+			mag.linearPhase
+		});
+
+		// complex spectrum
+		complex = Polar.new(
+			mag.as(Signal),  // magnitude
+			pha.as(Signal)  // phase
+		).asComplex;
+
+		^(size.isPowerOfTwo).if({  // rfft
+			var rfftsize = (size/2 + 1).asInteger;
+			var cosTable = Signal.rfftCosTable(rfftsize);
+			// synthesize kernel
+			complex.real.keep(rfftsize).irfft(complex.imag.keep(rfftsize), cosTable)
+		}, {  // dft
+			// synthesize kernels
+			complex.real.idft(complex.imag).real
+		})
+	}
 }

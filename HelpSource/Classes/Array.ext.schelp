@@ -10,6 +10,34 @@ Array.zeroFill(8)
 ::
 
 
+subsection:: Fourier Transform
+
+METHOD:: logShelf
+
+Create a new Array whose slots are filled with linearly spaced magnitudes to create a log shelf filter.FOOTNOTE::Baird, J; Jackson, B; and D McGrath. “Raised Cosine Equalization Utilizing Log Scale Filter Synthesis.“ 117th Audio Engineering Society Convention, San Francisco, USA. October 2004. Permalink: link::http://www.aes.org/e-lib/browse.cfm?elib=12914::
+:: See also: link::Classes/Signal#*logShelf::.
+
+
+argument:: size
+The size of the array to return.
+
+argument:: freq0
+The frequeny, at which to begin transition from strong::gainDC:: to strong::gainNy::, in Hz.
+
+argument:: freq1
+The frequeny, at which to end transition from strong::gainDC:: to strong::gainNy::, in Hz.
+
+argument:: gainDC
+The gain at DC, in dB.
+
+argument:: gainNy
+The gain at Nyquist, in dB.
+
+argument:: sampleRate
+The sample rate, in Hz.
+
+
+
 INSTANCEMETHODS::
 
 subsection:: Fourier Transform

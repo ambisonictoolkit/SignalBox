@@ -29,6 +29,54 @@
 		^Array.fill(size, {0.0} )
 	}
 
+	/* magnitude */
+	*logShelf { arg size, freq0, freq1, gainDC, gainNy, sampleRate;
+		var f0, f1;
+		var delta, sigma;
+		var kdc, kny;
+		var freqs;
+
+		(freq0.abs < freq1.abs).if({
+			f0 = freq0.abs;
+			f1 = freq1.abs;
+		}, {
+			f0 = freq1.abs;
+			f1 = freq0.abs;
+		});
+
+		delta = (f1 / f0).log2.reciprocal;
+		sigma = (f0 * f1).log2;
+		kdc = gainDC.dbamp;
+		kny = gainNy.dbamp;
+
+		freqs = size.isPowerOfTwo.if({
+			size.fftFreqs(sampleRate)
+		}, {
+			size.dftFreqs(sampleRate)
+		});
+
+		^freqs.collect({ arg freq;
+			var beta, sinBeta2, cosBeta2;
+			var freqAbs = freq.abs;
+
+			case
+			{ freqAbs <= f0 } {
+				kdc
+			}
+			{ (freqAbs > f0) && (freqAbs < f1) } {
+				beta = (pi/4) * (1 + (delta * (sigma - (2 * freqAbs.log2))));  // direct beta
+				sinBeta2 = beta.sin.squared;
+				cosBeta2 = 1 - sinBeta2;
+
+				kdc.pow(sinBeta2) * kny.pow(cosBeta2)  // return as scale
+			}
+			{ freqAbs >= f1 } {
+				kny
+			}
+		})
+	}
+
+
 	/* phase helpers */
 
 	// input is magnitude of +/-frequencies
