@@ -3,11 +3,21 @@ Spectrum : Number {
 	var <>magnitude, <>phase;
 
 	*new { arg magnitude, phase;
-		^(phase == nil).if({
-			super.newCopyArgs(magnitude, Array.zeroFill(magnitude.size))
+		var mag, pha;
+
+		mag = (magnitude == nil).if({
+			Array.fill(phase.size, { 1.0 })
 		}, {
-			super.newCopyArgs(magnitude, phase)
-		})
+			magnitude
+		});
+
+		pha = (phase == nil).if({
+			Array.zeroFill(magnitude.size)
+		}, {
+			phase
+		});
+
+		^super.newCopyArgs(mag, pha)
 	}
 
 	*newComplex { arg complex;
@@ -138,6 +148,10 @@ Spectrum : Number {
 		this.phase = this.phase + phaseOffset
 	}
 
+	// allpass - reset magnitude, in place
+	allpass {
+		magnitude = Array.fill(this.size, { 1.0 })
+	}
 
 	// math
 	neg { ^Spectrum.new(magnitude, phase + pi) }

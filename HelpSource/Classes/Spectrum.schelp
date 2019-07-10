@@ -4,12 +4,38 @@ categories:: Math
 related:: Classes/Signal, Classes/Polar, Classes/Complex
 
 DESCRIPTION::
-A Spectrum represents a sampled function in the frequency domain.
+A Spectrum represents a sampled function in the frequency domain, in a polar form.
 
 CLASSMETHODS::
 
 METHOD:: new
 Create a new instance with the given magnitude and phase.
+
+code::
+// frequency sampled allpass filter design
+~size = 128;
+~cosTable = Signal.fftCosTable(~size);
+
+// design phase for REAL allpass
+~randRadian = Array.fill(~size/2 - 1, { pi.bilinrand });
+~phase = Array.with(0.0) ++ ~randRadian ++ Array.with(0.0) ++ (~randRadian.reverse.neg);  // 0.0 at DC & Nyquist, otherwise, symmetric random
+
+// design allpass spectrum
+~spectrum = Spectrum.new(phase: ~phase);
+
+// synthesize REAL kernel
+~signal = ~spectrum.real.ifft(~spectrum.imag, ~cosTable).real;
+
+~signal.plot("frequency sampled allpass")
+::
+
+argument:: magnitude
+Spectrum magnitude. If code::nil:: set to 1.
+
+argument:: phase
+Spectrum phase. If code::nil:: set to 0.
+
+
 
 
 METHOD:: newComplex
@@ -113,6 +139,11 @@ code::
 
 ~spectrum.magnitude.plot("magnitude");
 ::
+
+
+METHOD:: allpass
+Reset the magnitude strong::in place:: to 1.
+
 
 subsection:: Phase
 
