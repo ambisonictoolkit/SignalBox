@@ -243,7 +243,7 @@ See link::#*readWave:: discussion above.
 METHOD:: logShelf
 
 Return a log shelf filter kernel.FOOTNOTE::Baird, J; Jackson, B; and D McGrath. “Raised Cosine Equalization Utilizing Log Scale Filter Synthesis.“ 117th Audio Engineering Society Convention, San Francisco, USA. October 2004. Permalink: link::http://www.aes.org/e-lib/browse.cfm?elib=12914::
-:: See also: link::Classes/Array#*logShelf::.
+:: See also: link::Classes/Spectrum#*logShelf::.
 
 
 argument:: size

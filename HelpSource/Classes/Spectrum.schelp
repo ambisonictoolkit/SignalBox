@@ -1,0 +1,185 @@
+TITLE:: Spectrum
+summary:: Spectral processing
+categories:: Math
+related:: Classes/Signal, Classes/Polar, Classes/Complex
+
+DESCRIPTION::
+A Spectrum represents a sampled function in the frequency domain.
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance with the given magnitude and phase.
+
+
+METHOD:: newComplex
+Create a new instance given a spectrum in complex form.
+
+code::
+~size = 128;
+~cosTable = Signal.fftCosTable(~size);
+
+// real signal
+~real = Array.fill(~size, { 1.0.bilinrand }).as(Signal);
+~imag = Signal.zeroFill(~size);
+
+~real.plot("time domain");
+
+// complex spectrum - cartesian
+~complex = ~real.fft(~imag, ~cosTable);
+
+// spectrum
+~spectrum = Spectrum.newComplex(~complex);
+
+~spectrum.magnitude.plot("magnitude");
+::
+
+
+METHOD:: logShelf
+
+Create a new Array whose slots are filled with linearly spaced magnitudes to create a log shelf filter.FOOTNOTE::Baird, J; Jackson, B; and D McGrath. “Raised Cosine Equalization Utilizing Log Scale Filter Synthesis.“ 117th Audio Engineering Society Convention, San Francisco, USA. October 2004. Permalink: link::http://www.aes.org/e-lib/browse.cfm?elib=12914::
+:: See also: link::Classes/Signal#*logShelf::.
+
+
+argument:: size
+The size of the spectrum to return.
+
+argument:: freq0
+The frequeny, at which to begin transition from strong::gainDC:: to strong::gainNy::, in Hz.
+
+argument:: freq1
+The frequeny, at which to end transition from strong::gainDC:: to strong::gainNy::, in Hz.
+
+argument:: gainDC
+The gain at DC, in dB.
+
+argument:: gainNy
+The gain at Nyquist, in dB.
+
+argument:: sampleRate
+The sample rate, in Hz.
+
+
+
+INSTANCEMETHODS::
+
+METHOD:: size
+Spectrum size.
+
+
+subsection:: Frequeny
+
+METHOD:: freqs
+Coefficient frequencies.
+
+
+METHOD:: ks
+Coefficient numbers
+
+
+subsection:: Magnitude
+
+METHOD:: magnitude
+Set or return the magnitude.
+
+METHOD:: peakMagnitude
+Return the peak magnitude.
+
+
+METHOD:: rho
+Synonym for link::#-magnitude::
+
+
+METHOD:: scale
+Scale the magnitude strong::in place::.
+
+
+METHOD:: normalize
+Normalize the magnitude strong::in place:: to 1.
+
+code::
+~size = 128;
+~cosTable = Signal.fftCosTable(~size);
+
+// real signal
+~real = Array.fill(~size, { 1.0.bilinrand }).as(Signal);
+~imag = Signal.zeroFill(~size);
+
+// complex spectrum - cartesian
+~complex = ~real.fft(~imag, ~cosTable);
+
+// spectrum
+~spectrum = Spectrum.newComplex(~complex).normalize;
+
+~spectrum.magnitude.plot("magnitude");
+::
+
+subsection:: Phase
+
+METHOD:: phase
+Set or return the phase.
+
+
+
+METHOD:: theta
+Synonym for link::#-phase::
+
+METHOD:: angle
+Synonym for link::#-phase::
+
+
+METHOD:: neg
+Add code::pi:: to phase.
+
+
+METHOD:: invert
+Add code::pi:: to phase strong::in place::.
+
+
+
+METHOD:: rotatePhase
+Rotate the phase by a value in radians, strong::in place::. See also link::Classes/Signal#-rotatePhase::.
+
+
+METHOD:: rotateWave
+Rotate the time domain waveform by a value in radians, strong::in place::. See also link::Classes/Signal#-rotateWave::.
+
+
+
+METHOD:: linearPhase
+Return a linear phase spectrum, preserving the magnitude, strong::in place::. See also link::Classes/Signal#-linearPhase::.
+
+argument:: sym
+a Boolean indicating whether the window is symmetric or periodic. Default is false.
+
+
+METHOD:: minimumPhase
+Return a minimum phase spectrum, preserving the magnitude, strong::in place::. FOOTNOTE::Damera-Venkata, N, and B.L Evans. “Optimal Design of Real and Complex Minimum Phase Digital FIR Filters.” 1999 IEEE International Conference on Acoustics, Speech, and Signal Processing. Proceedings. ICASSP99 (Cat. No.99CH36258), vol. 3, 1999, pp. 1145–1148 vol.3.:: See also link::Classes/Signal#-minimumPhase::.
+
+ARGUMENT:: mindb
+a minimum value in dB to clip amplitude response to. Reduces time aliasing.
+
+
+
+subsection:: Conversion & Complex
+
+METHOD:: asPolar
+Return link::Classes/Polar::.
+
+METHOD:: asComplex
+Return link::Classes/Complex::.
+
+METHOD:: real
+Return the real part of the complex spectrum.
+
+METHOD:: imag
+Return the imaginary part of the complex spectrum.
+
+
+
+PRIVATE:: hash, storeArgs, printOn, asSpectrum
+
+
+EXAMPLES::
+
+TBD

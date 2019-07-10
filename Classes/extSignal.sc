@@ -363,25 +363,25 @@
 	}
 
 	linearPhase { arg sym = false;
-		var magnitude, phase, complex;
+		var complex;
 
 		^this.overWrite(
 			(this.size.isPowerOfTwo).if({  // rfft
 				var cosTable = Signal.rfftCosTable(this.size/2 + 1);
-				var rcomplex, rcomplexMin;
+				var rcomplex, rcomplexLin;
 
 				rcomplex = this.rfft(cosTable);  // real fft
-				magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
-				phase = magnitude.linearPhase(sym);  // linear phase
 
-				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
-				rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
+				complex = Spectrum.newComplex(
+					rcomplex.real.rfftToFft(rcomplex.imag)  // mirror spectrum
+				).linearPhase(sym).asComplex;  // mirrored linearPhase
+				rcomplexLin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
-				rcomplexMin.real.irfft(rcomplexMin.imag, cosTable)  // irfft
+				rcomplexLin.real.irfft(rcomplexLin.imag, cosTable)  // irfft
 			}, {  // czt via dft
-				magnitude = this.dft(Signal.newClear(this.size)).magnitude;  // magnitude
-				phase = magnitude.linearPhase(sym);  // linear phase
-				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // linear phase spectrum
+				complex = Spectrum.newComplex(
+					this.dft(Signal.newClear(this.size))  // dft
+				).linearPhase(sym).asComplex;
 
 				complex.real.idft(complex.imag).real  // idft
 			})
@@ -390,7 +390,7 @@
 
 	// Hilbert minimum phase
 	minimumPhase { arg mindb = -120.0, oversample = 1;
-		var magnitude, phase, complex;
+		var complex;
 		var osSize, osThis;
 
 		osSize = (oversample.isInteger || this.size.isPowerOfTwo).if({
@@ -406,17 +406,17 @@
 				var rcomplex, rcomplexMin;
 
 				rcomplex = osThis.rfft(cosTable);  // real fft
-				magnitude = rcomplex.real.rfftToFft(rcomplex.imag).magnitude;  // mirror spectrum & magnitude
-				phase = magnitude.minimumPhase(mindb);  // minimum phase
 
-				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+				complex = Spectrum.newComplex(
+					rcomplex.real.rfftToFft(rcomplex.imag)  // mirror spectrum
+				).minimumPhase(mindb).asComplex;  // mirrored minimumPhase
 				rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
 				rcomplexMin.real.irfft(rcomplexMin.imag, cosTable).keep(this.size)  // irfft
 			}, {  // czt via dft
-				magnitude = osThis.dft(Signal.newClear(osSize)).magnitude;  // magnitude
-				phase = magnitude.minimumPhase(mindb);  // minimum phase
-				complex = Polar.new(magnitude.as(Signal), phase.as(Signal)).asComplex;  // minimum phase spectrum
+				complex = Spectrum.newComplex(
+					osThis.dft(Signal.newClear(osSize))  // dft
+				).minimumPhase(mindb).asComplex;
 
 				complex.real.idft(complex.imag).real.keep(this.size)  // idft
 			})
@@ -1212,30 +1212,29 @@
 	/* log filters */
 
 	*logShelf { arg size, freq0, freq1, gainDC, gainNy, phase = \lin, sampleRate;
-		var mag, pha, complex;
-
-		// magnitude & phase
-		mag = Array.logShelf(size, freq0, freq1, gainDC, gainNy, sampleRate);
-		pha = (phase == \min).if({
-			mag.minimumPhase
-		}, {
-			mag.linearPhase
-		});
+		var spectrum, complex;
 
 		// complex spectrum
-		complex = Polar.new(
-			mag.as(Signal),  // magnitude
-			pha.as(Signal)  // phase
-		).asComplex;
+		spectrum = Spectrum.logShelf(size, freq0, freq1, gainDC, gainNy, sampleRate);
+
+		// assign phase
+		(phase == \min).if({
+			spectrum.minimumPhase
+		}, {
+			spectrum.linearPhase
+		});
+
+		// convert to complex
+		complex = spectrum.asComplex;
 
 		^(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
-			// synthesize kernel
-			complex.real.keep(rfftsize).irfft(complex.imag.keep(rfftsize), cosTable)
+			var rcomplex = complex.real.fftToRfft(complex.imag);
+			rcomplex.real.irfft(rcomplex.imag, cosTable)
 		}, {  // dft
-			// synthesize kernels
 			complex.real.idft(complex.imag).real
 		})
 	}
+
 }
