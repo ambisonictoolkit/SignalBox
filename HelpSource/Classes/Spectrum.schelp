@@ -145,7 +145,7 @@ METHOD:: allpass
 Reset the magnitude strong::in place:: to 1.
 
 
-subsection:: Phase
+subsection:: Phase & Delay
 
 METHOD:: phase
 Set or return the phase.
@@ -189,6 +189,19 @@ Return a minimum phase spectrum, preserving the magnitude, strong::in place::. F
 
 ARGUMENT:: mindb
 a minimum value in dB to clip amplitude response to. Reduces time aliasing.
+
+
+METHOD:: phaseDelay
+Return phase delay analysis, in samples.
+
+NOTE::Measure at DC is returned as the mean of the delay at k = +/-1.::
+
+
+METHOD:: groupDelay
+Return group delay analysis, in samples. FOOTNOTE::Smith, J.O. "Numerical Computation of Group Delay", in Introduction to Digital Filters with Audio Applications, https://ccrma.stanford.edu/~jos/filters/Numerical_Computation_Group_Delay.html, online book, September 2007 edition, accessed 16 July 2019.::
+
+ARGUMENT:: mindb
+a minimum value in dB to clip amplitude response to. Prevents singularities.
 
 
 

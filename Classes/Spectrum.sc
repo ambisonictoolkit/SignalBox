@@ -148,6 +148,59 @@ Spectrum : Number {
 		this.phase = this.phase + phaseOffset
 	}
 
+	/* phase and group delay */
+
+	// set DC to average of bin 1 and N-1
+	phaseDelay {
+		var num = phase.neg;
+		var dem = this.size.isPowerOfTwo.if({  // ks
+			this.size.fftFreqs(this.size)
+		}, {
+			this.size.dftFreqs(this.size)
+		});
+
+		^(
+			[[num.at(1) / dem.at(1), num.at(this.size - 1) / dem.at(this.size - 1)].mean] ++
+			((num.drop(1) / dem.drop(1)))
+		) * this.size / 2pi // samples
+	}
+
+	groupDelay { arg mindb = -90.0;
+		var complex = this.asComplex;
+		var ramped, complexr;
+		var num, den;
+		var minMag, singlBins;
+
+		this.size.isPowerOfTwo.if({
+			var rfftSize = this.size / 2 + 1;
+			var cosTable = Signal.rfftCosTable(rfftSize);
+			var rcomplex = complex.real.fftToRfft(complex.imag);
+			var rcomplexr;
+
+			ramped = Array.series(this.size).as(Signal) * rcomplex.real.irfft(rcomplex.imag, cosTable);
+			rcomplexr = ramped.rfft(cosTable);
+			complexr = rcomplexr.real.rfftToFft(rcomplexr.imag);
+		}, {
+			ramped = Array.series(this.size).as(Signal) * complex.real.idft(complex.imag).real;
+			complexr = ramped.dft(Signal.zeroFill(this.size));
+		});
+
+		num = complexr.real.collect({ arg real, i;
+			Complex.new(real, complexr.imag.at(i))
+		});  // deinterleave
+		den = complex.real.collect({ arg real, i;
+			Complex.new(real, complex.imag.at(i))
+		});  // deinterleave
+
+		// find & replace singularities
+		minMag = mindb.dbamp;
+		singlBins = magnitude.selectIndices({arg item; item < minMag});
+		num.put(singlBins, 0.0);
+		den.put(singlBins, 1.0);
+
+		^(num / den).real  // samples
+	}
+
 	// allpass - reset magnitude, in place
 	allpass {
 		magnitude = Array.fill(this.size, { 1.0 })
