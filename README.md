@@ -134,6 +134,17 @@ Known issues are logged at
 List of Changes
 ---------------
 
+Version 0.1.3
+
+*  New features:
+    *  Spectrum class
+    *  Allpass instance method
+    *  Phase and Group delay analysis
+
+*  Refactor
+    *  Deprecate Array class methods
+    *  Deprecate linear and minimum phase class methods
+
 Version 0.1.2
 
 *  New features:
@@ -145,12 +156,12 @@ Version 0.1.1
     *  constant-overlap-add (COLA) windowing
 
 *  Documentation Updates:
-    * Added algorithm citations
-    * Correct Signal -readWave example
+    *  Added algorithm citations
+    *  Correct Signal -readWave example
 
 Version 0.1.0
 
-* First Public Release.
+*  First Public Release.
 
 &nbsp;
 
