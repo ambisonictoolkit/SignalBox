@@ -116,7 +116,7 @@
 			soundFile.openRead;
 
 			// calcs...
-			soundFrames = (soundFile.numFrames / soundFile.numChannels).asInteger;
+			soundFrames = soundFile.numFrames;
 			soundEndFrame = soundFrames - 1;
 			winSize = (size == nil).if({  // returned window size
 				soundFrames  // complete soundfile
