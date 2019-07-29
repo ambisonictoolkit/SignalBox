@@ -141,9 +141,12 @@ Version 0.1.3
     *  Allpass instance method
     *  Phase and Group delay analysis
 
-*  Refactor
+*  Refactor:
     *  Deprecate Array class methods
     *  Deprecate linear and minimum phase class methods
+
+*  Issue fixes:
+    *  Signal:-read numFrames calculation
 
 Version 0.1.2
 
