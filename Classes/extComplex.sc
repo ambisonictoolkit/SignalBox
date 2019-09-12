@@ -23,12 +23,12 @@
 
 + Complex {
 
-	// Spectrum class
-	*newSpectrum { arg spectrum;
+	// FreqSpectrum class
+	*newFreqSpectrum { arg spectrum;
 		^spectrum.asComplex
 	}
 
-	asSpectrum { ^Spectrum.newComplex(this) }
+	asFreqSpectrum { ^FreqSpectrum.newComplex(this) }
 
 	// could add to MathLib Quark...
 	rotate { arg angle;

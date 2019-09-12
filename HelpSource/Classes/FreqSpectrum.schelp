@@ -1,10 +1,10 @@
-TITLE:: Spectrum
+TITLE:: FreqSpectrum
 summary:: Spectral processing
 categories:: Math
 related:: Classes/Signal, Classes/Polar, Classes/Complex
 
 DESCRIPTION::
-A Spectrum represents a sampled function in the frequency domain, in a polar form.
+A FreqSpectrum represents a sampled function in the frequency domain, in a polar form.
 
 CLASSMETHODS::
 
@@ -21,7 +21,7 @@ code::
 ~phase = Array.with(0.0) ++ ~randRadian ++ Array.with(0.0) ++ (~randRadian.reverse.neg);  // 0.0 at DC & Nyquist, otherwise, symmetric random
 
 // design allpass spectrum
-~spectrum = Spectrum.new(phase: ~phase);
+~spectrum = FreqSpectrum.new(phase: ~phase);
 
 // synthesize REAL kernel
 ~signal = ~spectrum.real.ifft(~spectrum.imag, ~cosTable).real;
@@ -30,10 +30,10 @@ code::
 ::
 
 argument:: magnitude
-Spectrum magnitude. If code::nil:: set to 1.
+Frequency domain magnitude. If code::nil:: set to 1.
 
 argument:: phase
-Spectrum phase. If code::nil:: set to 0.
+Frequency domain phase. If code::nil:: set to 0.
 
 
 
@@ -55,7 +55,7 @@ code::
 ~complex = ~real.fft(~imag, ~cosTable);
 
 // spectrum
-~spectrum = Spectrum.newComplex(~complex);
+~spectrum = FreqSpectrum.newComplex(~complex);
 
 ~spectrum.magnitude.plot("magnitude");
 ::
@@ -90,7 +90,7 @@ The sample rate, in Hz.
 INSTANCEMETHODS::
 
 METHOD:: size
-Spectrum size.
+FreqSpectrum size.
 
 
 subsection:: Frequeny
@@ -135,7 +135,7 @@ code::
 ~complex = ~real.fft(~imag, ~cosTable);
 
 // spectrum
-~spectrum = Spectrum.newComplex(~complex).normalize;
+~spectrum = FreqSpectrum.newComplex(~complex).normalize;
 
 ~spectrum.magnitude.plot("magnitude");
 ::
@@ -221,7 +221,7 @@ Return the imaginary part of the complex spectrum.
 
 
 
-PRIVATE:: hash, storeArgs, printOn, asSpectrum
+PRIVATE:: hash, storeArgs, printOn, asFreqSpectrum
 
 
 EXAMPLES::

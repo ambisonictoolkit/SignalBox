@@ -372,14 +372,14 @@
 
 				rcomplex = this.rfft(cosTable);  // real fft
 
-				complex = Spectrum.newComplex(
+				complex = FreqSpectrum.newComplex(
 					rcomplex.real.rfftToFft(rcomplex.imag)  // mirror spectrum
 				).linearPhase(sym).asComplex;  // mirrored linearPhase
 				rcomplexLin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
 				rcomplexLin.real.irfft(rcomplexLin.imag, cosTable)  // irfft
 			}, {  // czt via dft
-				complex = Spectrum.newComplex(
+				complex = FreqSpectrum.newComplex(
 					this.dft(Signal.newClear(this.size))  // dft
 				).linearPhase(sym).asComplex;
 
@@ -407,14 +407,14 @@
 
 				rcomplex = osThis.rfft(cosTable);  // real fft
 
-				complex = Spectrum.newComplex(
+				complex = FreqSpectrum.newComplex(
 					rcomplex.real.rfftToFft(rcomplex.imag)  // mirror spectrum
 				).minimumPhase(mindb).asComplex;  // mirrored minimumPhase
 				rcomplexMin = complex.real.fftToRfft(complex.imag);  // discard negative freqs
 
 				rcomplexMin.real.irfft(rcomplexMin.imag, cosTable).keep(this.size)  // irfft
 			}, {  // czt via dft
-				complex = Spectrum.newComplex(
+				complex = FreqSpectrum.newComplex(
 					osThis.dft(Signal.newClear(osSize))  // dft
 				).minimumPhase(mindb).asComplex;
 
@@ -1215,7 +1215,7 @@
 		var spectrum, complex;
 
 		// complex spectrum
-		spectrum = Spectrum.logShelf(size, freq0, freq1, gainDC, gainNy, sampleRate);
+		spectrum = FreqSpectrum.logShelf(size, freq0, freq1, gainDC, gainNy, sampleRate);
 
 		// assign phase
 		(phase == \min).if({

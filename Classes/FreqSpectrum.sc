@@ -1,5 +1,5 @@
 // may want to change the superclass
-Spectrum : Number {
+FreqSpectrum : Number {
 	var <>magnitude, <>phase;
 
 	*new { arg magnitude, phase;
@@ -22,7 +22,7 @@ Spectrum : Number {
 
 	*newComplex { arg complex;
 		var polar = complex.asPolar;
-		^Spectrum.new(polar.magnitude, polar.phase)
+		^FreqSpectrum.new(polar.magnitude, polar.phase)
 	}
 
 	*logShelf { arg size, freq0, freq1, gainDC, gainNy, sampleRate;
@@ -71,7 +71,7 @@ Spectrum : Number {
 			}
 		});
 
-		^Spectrum.new(mag)
+		^FreqSpectrum.new(mag)
 	}
 
 	rho { ^magnitude }
@@ -83,7 +83,7 @@ Spectrum : Number {
 	real { ^(magnitude * cos(phase)).as(Signal) }
 	imag { ^(magnitude * sin(phase)).as(Signal) }
 
-	asSpectrum { ^this }
+	asFreqSpectrum { ^this }
 	asPolar { ^Polar.new(magnitude, phase) }
 	asComplex { ^Complex.new(this.real, this.imag) }
 
@@ -207,7 +207,7 @@ Spectrum : Number {
 	}
 
 	// math
-	neg { ^Spectrum.new(magnitude, phase + pi) }
+	neg { ^FreqSpectrum.new(magnitude, phase + pi) }
 
 	// math - in place
 	invert { phase = phase + pi }
@@ -262,7 +262,7 @@ Spectrum : Number {
 	}
 
 	printOn { arg stream;
-		stream << "Spectrum( " << magnitude << ", " << phase << " )";
+		stream << "FreqSpectrum( " << magnitude << ", " << phase << " )";
 	}
 
 	storeArgs { ^[magnitude, phase] }
