@@ -134,6 +134,11 @@ Known issues are logged at
 List of Changes
 ---------------
 
+Version 0.1.4
+
+*  Issue fixes:
+    *  Spectrum name collision with TuningLib, rename as FreqSpectrum
+
 Version 0.1.3
 
 *  New features:
