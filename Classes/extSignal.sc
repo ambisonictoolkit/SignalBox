@@ -731,19 +731,22 @@
 	/* dft */
 
 	dft { arg imag, method = 'czt';
+		var complex, thisComplex, quadProbe, complexMul;
+
 		^method.switch(
 			'czt', {
 				this.czt(imag)
 			},
 			'dir', {
-				var complex = this.size.collect({ arg i;
+				thisComplex = this.complex(imag);
+				complex = this.size.collect({ arg i;
+					quadProbe = Complex.new(
+						Signal.newClear(this.size).addCosine(i, 1.0, 0.0),
+						Signal.newClear(this.size).addSine(i, -1.0, 0.0)
+					);
+					complexMul = thisComplex * quadProbe;
 					[\real, \imag].collect({ arg msg;
-						(
-							Complex.new(
-								Signal.newClear(this.size).addCosine(i, 1.0, 0.0),
-								Signal.newClear(this.size).addSine(i, -1.0, 0.0)
-							) * this.complex(imag)
-						).perform(msg).sum
+						complexMul.perform(msg).sum
 					});
 				}).flop;
 
